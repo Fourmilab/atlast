@@ -54,7 +54,7 @@ are installed on the systems used to develop and deploy applications.
 ## Documentation
 
 Due to language differences between the 32- and 64-bit versions of
-Atlast, each has its own documentation.'
+Atlast, each has its own documentation.
 
-* [Atlast 32-bit](atlast-32/atlast.html)
-* [Atlast 64-bit](atlast-64/atlast2.html)
+* [Atlast 32-bit](https://www.fourmilab.ch/atlast/atlast.html)
+* [Atlast 64-bit](https://www.fourmilab.ch/atlast/atlast2.html)
