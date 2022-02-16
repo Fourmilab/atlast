@@ -1,0 +1,22 @@
+\   Tamura-Kanada fast Pi algorithm
+
+variable a
+variable b
+variable c
+variable y
+
+: tamura-kanada ( n -- fpi )
+    1.0 a !
+    1.0 2.0 sqrt f/ b !
+    0.25 c !
+    1.0
+    swap 1 do
+        a @ dup y !
+        b @ f+ 2.0 f/ a !
+        b @ y @ f* sqrt b !
+        c @ over a @ y @ f-
+        dup f* f* f- c ! 2.0 f*
+    loop
+    drop
+    a @ b @ f+ dup f* 4.0 c @ f* f/
+;

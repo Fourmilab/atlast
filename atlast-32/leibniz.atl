@@ -1,0 +1,30 @@
+\   Series approximations of Pi
+
+\   Leibniz: pi/4 = 1 - 1/3 + 1/5 - 1/7 ...
+
+: leibniz      ( n -- fpi )
+    1.0 1.0
+    4 pick 1 do
+        2.0 f+  \ denom += 2
+        2dup
+        i 1 and if
+            fnegate
+        then
+        1.0 2swap f/
+        2rot f+
+        2swap
+    loop
+    2drop
+    rot drop
+    4.0 f*
+;
+
+\   Reference value of Pi
+
+1.0 atan 4.0 f* 2constant pi
+
+\ Calculate and print error
+
+: pierr
+    pi f- fabs f. cr
+;

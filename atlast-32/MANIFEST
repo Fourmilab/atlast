@@ -1,0 +1,13 @@
+Files included in the ATLAST master source distribution:
+
+atlast.c        ATLAST source code
+atlast.h        Definitions for programs which invoke ATLAST
+atlast.html     ATLAST documentation.  XHTML 1.0 Strict
+atldef.h        Definitions for programs which define ATLAST primitives
+atlmain.c       Main program for stand-alone ATLAST
+log.txt     	Development log (commencing with release 1.2)
+Makefile        Unix Make file for ATLAST
+MANIFEST        This file
+primdeftest.c	User primitive definition test/example
+regout.txt      Regression test output for Unix
+regress.atl     ATLAST comprehensive regression test

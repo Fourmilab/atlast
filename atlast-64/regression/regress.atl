@@ -1,0 +1,1104 @@
+\ *heap 6100
+
+\  ATLAST  --  Comprehensive regression test
+
+\  Check integer result
+
+132 string estring
+132 string checking
+variable errors
+
+\  TESTS:  --  Declare current word under tests
+
+: tests:
+        checking s!
+;
+
+\  OOPS!  --  Increment errors encountered
+
+: oops!
+        1 errors +!
+;
+
+\  DERBIS  --  Check for debris left on the stack
+
+: derbis
+    depth if
+        checking type ." ": "
+        ." "Derbis left on " .s cr
+        oops!
+       clear
+    then
+;
+
+\  NOK?  --  Validate a number of stack results
+
+variable nsi
+
+: nok?                                ( rcv0 ... rcvn
+                                        exp0 ... expn n -- )
+    dup nsi !
+    0 do
+        i pick i nsi @ + 1+ pick
+        2dup <> if
+            swap
+            ." "Error in " checking type
+                nsi @ 1 <> if
+                    i " item %ld" estring strform estring type
+                then
+                ." ": expected " "%ld" estring strform estring type
+                ." ", received " "%ld.\n" estring strform estring type
+            oops!
+        else
+            2drop
+        then
+    loop
+    nsi @ 2* 0 do
+        drop
+    loop
+    derbis
+;
+
+\  OK?  --  Validate a single stack result
+
+: ok?
+    1 nok?
+;
+
+\   FOK?  --  Validate a floating point stack result
+
+: fok?                                ( frcv fexp --  )
+    over over f- fabs 1.0e-10 f> if
+        ." "Error in " checking type
+            ." ": expected " "%g" estring fstrform estring type
+            ." ", received " "%g.\n" estring fstrform estring type
+        oops!
+    else
+        drop drop
+    then
+    derbis
+;
+
+\   SOK?  --  Validate a string stack result.  This tests for
+\             string equality, not identity of the pointers to
+\             the string.  If you want to test identity, you can
+\             use OK?
+
+: sok?                                ( srcv sexp --  )
+    2dup strcmp 0<> if
+        ." "Error in " checking type
+            ." ":\n    Expected " type cr
+            ." "    Received " type cr
+        oops!
+    else
+        2drop
+    then
+    derbis
+;
+
+\  TESTINT  --  Test integer arithmetic words
+
+: testint
+    "+" tests:
+        1 2 + 3 ok?
+        -11 3 + -8 ok?
+        5 13 + 1 + 14 + 25 + 58 ok?
+        5 13 1 14 25 + + + + 58 ok?
+ \  1 1 + 3 ok?                            Deliberate error
+
+    "-" tests:
+        50 40 - 10 ok?
+        40 50 - -10 ok?
+
+    "*" tests:
+        3 4 * 12 ok?
+        3 -4 * -12 ok?
+
+    "/" tests:
+        15 6 / 2 ok?
+        -16 3 / -5 ok?                ( Note: like C, not like FORTH )
+
+    "1+" tests:
+        13 1+ 14 ok?
+        -11 1+ -10 ok?
+
+    "2+" tests:
+        13 2+ 15 ok?
+        -11 2+ -9 ok?
+
+    "1-" tests:
+        13 1- 12 ok?
+        -11 1- -12 ok?
+
+    "2-" tests:
+        13 2- 11 ok?
+        -11 2- -13 ok?
+
+    "2*" tests:
+        11 2* 22 ok?
+        -1581 2* -3162 ok?
+
+    "2/" tests:
+        11 2/ 5 ok?
+        -100 2/ -50 ok?
+
+    "MOD" tests:
+        15 6 mod 3 ok?
+        -16 3 mod -1 ok?              ( Note: like C "%", not like FORTH )
+
+    "/MOD" tests:
+        15 6 /mod drop 3 ok?
+        15 6 /mod swap drop 2 ok?
+
+    "MIN" tests:
+        17 53 min 17 ok?
+        78 -22 min -22 ok?
+
+    "MAX" tests:
+        4 3000 max 3000 ok?
+        -8 -10 max -8 ok?
+
+    "NEGATE" tests:
+        0 negate 0 ok?
+        1000 negate -1000 ok?
+        -88 negate 88 ok?
+
+    "ABS" tests:
+        0 abs 0 ok?
+        1000 abs 1000 ok?
+        -88 abs 88 ok?
+
+    "=" tests:
+        11 12 = 0 ok?
+        12 12 = -1 ok?
+
+    "<>" tests:
+        11 12 <> -1 ok?
+        12 12 <> 0 ok?
+
+    ">" tests:
+        6 5 > -1 ok?
+        6 6 > 0 ok?
+        5 6 > 0 ok?
+
+    ">=" tests:
+        6 5 >= -1 ok?
+        6 6 >= -1 ok?
+        5 6 >= 0 ok?
+
+    "<" tests:
+        6 5 < 0 ok?
+        6 6 < 0 ok?
+        5 6 < -1 ok?
+
+    "<=" tests:
+        6 5 <= 0 ok?
+        6 6 <= -1 ok?
+        5 6 <= -1 ok?
+
+    "0=" tests:
+        5 0= 0 ok?
+        0 0= -1 ok?
+
+    "0<>" tests:
+        5 0<> -1 ok?
+        0 0<> 0 ok?
+
+    "0>" tests:
+        5 0> -1 ok?
+        -5 0> 0 ok?
+
+    "0<" tests:
+        5 0< 0 ok?
+        -5 0< -1 ok?
+
+    "AND" tests:
+        0x12345678 0xABCDEF45 and 33834560 ok?
+        0 -1 and 0 ok?
+
+    "OR" tests:
+        0x12345678 0xABCDEF45 or 0xBBFDFF7D ok?
+        0 -1 or -1 ok?
+
+    "XOR" tests:
+        0x12345678 0xABCDEF45 xor 0xB9F9B93D ok?
+        0 -1 xor -1 ok?
+        -1 -1 xor 0 ok?
+
+    "NOT" tests:
+        0x12345678 not 0xFFFFFFFFEDCBA987 ok?
+        0 not -1 ok?
+        -1 not 0 ok?
+
+    "SHIFT" tests:
+        1234 0 shift 1234 ok?
+        0x1000 1 shift 0x2000 ok?
+        0x1000 -1 shift 0x800 ok?
+        0x8000 -16 shift 0 ok?
+        0x10000 16 shift 0x100000000 ok?
+        0x80000000 -1 shift 0x40000000 ok?
+;
+
+\   Stack mechanics
+
+: teststk
+    "DEPTH" tests:
+        depth 0 ok?
+        1 2 3 depth rot 2drop swap drop 3 ok?
+
+    "CLEAR" tests:
+        clear depth 0 ok?
+        1 2 3 4 5 clear depth 0 ok?
+
+    "DUP" tests:
+        11 dup depth swap drop swap drop 2 ok?
+        -9999999 dup swap drop -9999999 ok?
+
+    "?DUP" tests:
+        0 ?dup 0 ok?
+        1 ?dup 1 1   2 nok?
+        -111 ?dup -111 -111   2 nok?
+
+    "DROP" tests:
+        1 2 3 4 drop rot 2drop 2 ok?
+
+    "SWAP" tests:
+        7 4 6 swap 7 6 4   3 nok?
+
+    "OVER" tests:
+        1 2 3 over over 1 2 3 2 3   5 nok?
+
+    "PICK" tests:
+        7 6 5 8 2 pick 0 pick 7 6 5 8 6 6   6 nok?
+
+    "ROT" tests:
+        9 5 6 rot 5 6 9   3 nok?
+
+    "-ROT" tests:
+        6 9 5 -rot 5 6 9   3 nok?
+
+    "ROLL" tests:
+        3 5 8 9  2 roll  0 roll  3 roll   8 9 5 3   4 nok?
+;
+
+\   Double word stack mechanics
+
+: test2stk
+    "2DUP" tests:
+        1 2   2dup   1 2 1 2   4 nok?
+
+    "2DROP" tests:
+        9 1 2   2drop   9 ok?
+
+    "2SWAP" tests:
+        1 2 3 4   2swap   3 4 1 2   4 nok?
+
+    "2OVER" tests:
+        1 2 3 4   2over   1 2 3 4 1 2   6 nok?
+
+    "2ROT" tests:
+        1 2 3 4 5 6   2rot   3 4 5 6 1 2   6 nok?
+;
+
+\   Heap allocation and byte addressing
+
+variable hp
+
+: testheap
+    "HERE" tests:
+        here 4 allot here 8 - ok?
+
+    "ALLOT" tests:
+        here 0 allot here ok?
+        here 1 allot here 8 - ok?
+        here 2 allot here 8 - ok?
+        here 3 allot here 8 - ok?
+        here 5 allot here 8 - ok?
+        here 7 allot here 8 - ok?
+        here 8 allot here 8 - ok?
+
+    "," tests:
+        here -99999 dup , here 8 - dup @ 2swap  2 nok?
+
+    "C," tests:
+        here dup hp ! 253 c, here 1- ok?
+        187 c, here 2- hp @ ok?
+
+    "C=" tests:
+        c= here 8 - hp @ ok?
+        10 c, c= here 16 - hp @ ok?
+        7 c, 8 c, -1 c, here 19 - c= here 24 - hp @ dup   2 nok?
+
+    "C@" tests:
+        hp @ c@ hp @ 1+ c@ 253 187   2 nok?
+        hp @ 8 + c@ hp @ 16 + dup c@ over 1+ c@ rot 2+ c@
+            10 7 8 255   4 nok?
+
+    "C!" tests:
+        hp @ dup 111 over c! c@ swap 1+ c@ 111 187   2 nok?
+        -2 hp @ 17 + c! hp @ 16 + dup c@ over 1+ c@ rot 2+ c@ 7 254 255   3 nok?
+;
+
+\   Variables and pointers
+
+here
+    variable sword
+    here constant here2
+constant here1
+here
+    2variable weather
+    here constant here4
+constant here3
+
+: testvar
+    "VARIABLE" tests:
+        sword body> here1 ok?
+        here2 sword - 8 ok?
+
+    "2VARIABLE" tests:
+        weather body> here3 ok?
+        here4 weather - 16 ok?
+
+    "@" tests:
+        sword @ 0 ok?                 \ Tests initialisation to zero
+
+    "!" tests:
+        11 sword ! sword @ 11 ok?
+
+    "2@" tests:
+        weather 2@ 0 0   2 nok?       \ Tests initialisation to zero
+
+    "2!" tests:
+        -99 887273 weather 2! weather 2@ -99 887273   2 nok?
+        -66763 weather 8 + ! weather 2@ -99 -66763   2 nok?
+;
+
+\   Arrays
+
+10 1 8 array array8
+4 7 8 3 1 array array1
+variable k
+
+: tav                                 \ Generate unique value for char array
+    3 shift or 2 shift or
+;
+
+: testarray
+    "ARRAY[1] Clearing" tests:
+        10 0 do
+            i array8 @ 0 ok?
+        loop
+
+    "ARRAY[1] Indexing 1" tests:
+        10 0 do
+            i negate -10000 + dup i array8 ! i array8 @ swap ok?
+        loop
+        10 0 do
+            i array8 @ i negate -10000 + ok?
+        loop
+
+    "ARRAY[3] Clearing" tests:
+        4 0 do
+            i k !
+            7 0 do
+                8 0 do
+                    \ Next line checks address is within array
+                    k @ j i array1 0 0 0 array1 - dup 224 > swap 0<
+                    k @ j i k @ j i array1 c@   0 0 k @ j i 0   6 nok?
+                loop
+            loop
+        loop
+
+    "ARRAY[3] Indexing" tests:
+        4 0 do
+            i k !
+            7 0 do
+                8 0 do
+                    k @ j i tav dup k @ j i array1 c!
+                    k @ j i array1 c@ ok?
+                loop
+            loop
+        loop
+        4 0 do
+            i k !
+            7 0 do
+                8 0 do
+                    k @ j i tav k @ j i array1 c@ ok?
+                loop
+            loop
+        loop
+;
+
+\   Return stack mechanics
+
+: testrstk
+    ">R" tests:
+        11 7 >r 11 ok?
+        -99 3 >r -99 ok?
+
+    "R@" tests:
+        r@ r@   3 3   2 nok?
+
+    "R>" tests:
+        r> r>   3 7   2 nok?
+;
+
+\   Conditional and looping primitives
+
+: texit
+    0 0 begin 1+ swap 2+ dup 8 = if exit then swap dup 10 = until
+;
+
+: tagain
+    0 0 begin 1+ swap 2+ dup 12 = if exit then swap again
+;
+
+: testloop
+    "IF" tests:
+        99 0 if negate then 99 ok?
+        99 1 if negate then -99 ok?
+        99 0x80000000 if negate then -99 ok?
+        99 -928 if negate then -99 ok?
+        0 if 88 else 99 then 99 ok?
+        1 if 88 else 99 then 88 ok?
+        -1 if 88 else 99 then 88 ok?
+        2 0 do
+            2 0 do
+                i 1 and if
+                    j 1 and if
+                        3
+                    else
+                        2
+                    then
+                else
+                    j 1 and if
+                        1
+                    else
+                        0
+                    then
+                then
+                i 2* j + ok?
+            loop
+        loop
+
+    "BEGIN-UNTIL" tests:
+        0 0 begin 1+ swap 2+ swap dup 10 = until   20 10   2 nok?
+
+    "BEGIN-WHILE" tests:
+        0 0 begin 1+ dup 10 <= while swap 2+ swap repeat   20 11   2 nok?
+
+    "EXIT" tests:
+        texit 4 8   2 nok?
+
+    "BEGIN-AGAIN" tests:
+        tagain 6 12  2 nok?
+
+    "DO-LOOP" tests:
+        0 10 0 do 2+ loop 20 ok?
+        0 10 0 do i + loop 45 ok?
+        0 7 3 do 4 1 do i j * + loop loop 108 ok?
+        0 2 0 do 1+ 7 3 do 4 1 do i j * + loop loop loop 218 ok?
+        0 10 10 do 2+ leave loop 2 ok?
+
+    "DO-+LOOP" tests:
+        0 10 0 do 3 + 1 +loop 30 ok?
+        0 21 1 do i + 3 +loop 70 ok?
+
+    "?DO" tests:
+        0 10 0 ?do 2+ loop 20 ok?
+        0 10 10 ?do 2+ loop 0 ok?
+
+    "LEAVE" tests:
+        0 10 0 do 2+ dup 10 = if i leave then loop 10 4   2 nok?
+        0 9 0 do
+            1+
+            114 3 do
+                11 1 do
+                    i j * +
+                    i 3 = if leave then
+                loop
+                i 6 = if leave then
+            loop
+            i 1 = if leave then
+        loop 218 ok?
+;
+
+\   Floating point arithmetic
+
+: testfloat
+    "F+" tests:
+        1.0 2.0 f+ 3.0 fok?
+        1.0 2.0 3.0 4.5 f+ f+ f+ 10.5 fok?
+        -11.0 3.7 f+ -7.3 fok?
+
+    "F-" tests:
+        50.0 40.0 f- 10.0 fok?
+        40.0 50.0 f- -10.0 fok?
+
+    "F*" tests:
+        6.0 4.0 f* 24.0 fok?
+        3.0 -4.5 f* -13.5 fok?
+
+    "F/" tests:
+        100.0 2.0 f/ 50.0 fok?
+        135.0 360.0 f/ 0.375 fok?
+        -135.0 360.0 f/ -0.375 fok?
+
+    "FMIN" tests:
+        683.0 -10.0 fmin -10.0 fok?
+        -10.0 683.0 fmin -10.0 fok?
+
+    "FMAX" tests:
+        683.0 -10.0 fmax 683.0 fok?
+        -10.0 683.0 fmax 683.0 fok?
+
+    "FNEGATE" tests:
+        0.0 fnegate 0.0 fok?
+        100.0 fnegate -100.0 fok?
+        -100.0 fnegate 100.0 fok?
+
+    "FABS" tests:
+        0.0 fabs 0.0 fok?
+        100.0 fabs 100.0 fok?
+        -100.0 fabs 100.0 fok?
+
+    "F=" tests:
+        2.4 2.4 f= -1 ok?
+        2.4 2.40001 f= 0 ok?
+        1e6 1000000.0 f= -1 ok?
+        1e6 -1000000.0 f= 0 ok?
+
+    "F<>" tests:
+        2.4 2.4 f<> 0 ok?
+        2.4 2.40001 f<> -1 ok?
+        1e6 1000000.0 f<> 0 ok?
+        1e6 -1000000.0 f<> -1 ok?
+
+    "F>" tests:
+        6.0 5.0 f> -1 ok?
+        6.0 6.0 f> 0 ok?
+        5.0 6.0 f> 0 ok?
+
+    "F>=" tests:
+        6.0 5.0 f>= -1 ok?
+        6.0 6.0 f>= -1 ok?
+        5.0 6.0 f>= 0 ok?
+
+    "F<" tests:
+        6.0 5.0 f< 0 ok?
+        6.0 6.0 f< 0 ok?
+        5.0 6.0 f< -1 ok?
+
+    "F<=" tests:
+        6.0 5.0 f<= 0 ok?
+        6.0 6.0 f<= -1 ok?
+        5.0 6.0 f<= -1 ok?
+
+    "FLOAT" tests:
+        0 float 0.0 fok?
+        -2000 float -2e3 fok?
+        180000 float 180000.0 fok?
+
+    "FIX" tests:
+        0.0 fix 0 ok?
+        3.0 fix 3 ok?
+        3.7 fix 3 ok?
+        -32767.0 fix -32767 ok?
+        -32767.8 fix -32767 ok?
+;
+
+\   Mathematical functions
+
+3.14159265358979323846 constant pi
+2.7182818284590452354 constant e
+
+: testmath
+    "ACOS" tests:
+        0.0 acos pi 2.0 f/ fok?
+        1.0 acos 0.0 fok?
+        -1.0 acos pi fok?
+
+    "ASIN" tests:
+        0.0 asin 0.0 fok?
+        1.0 asin pi 2.0 f/ fok?
+        -1.0 asin pi -2.0 f/ fok?
+
+    "ATAN" tests:
+        0.0 atan 0.0 fok?
+        1.0 atan pi 4.0 f/ fok?
+        -1.0 atan pi -4.0 f/ fok?
+
+    "ATAN2" tests:
+        0.0 1.0 atan2 0.0 fok?
+        1.0 1.0 atan2 pi 4.0 f/ fok?
+        -1.0 1.0 atan2 pi -4.0 f/ fok?
+        0.0 1.0 atan2 0.0 fok?
+        0.0 -1.0 atan2 pi fok?
+        1.0 0.0 atan2 pi 2.0 f/ fok?
+        -0.5 0.0 atan2 pi -2.0 f/ fok?
+
+    "COS" tests:
+        0.0 cos 1.0 fok?
+        pi cos -1.0 fok?
+        pi 3.0 f/ cos 0.5 fok?
+
+    "EXP" tests:
+        0.0 exp 1.0 fok?
+        1.0 exp e fok?
+        -1.0 exp 1.0 e f/ fok?
+
+    "LOG" tests:
+        1.0 log 0.0 fok?
+        e log 1.0 fok?
+        1.0 e f/ log -1.0 fok?
+
+    "POW" tests:
+        2.0 4.0 pow 16.0 fok?
+        2.0 -1.0 pow 0.5 fok?
+        8.0 1.0 3.0 f/ pow 2.0 fok?
+        e pi log pow pi fok?
+
+    "SIN" tests:
+        0.0 sin 0.0 fok?
+        pi 2.0 f/ sin 1.0 fok?
+        pi -2.0 f/ sin -1.0 fok?
+
+    "SQRT" tests:
+        0.0 sqrt 0.0 fok?
+        1.0 sqrt 1.0 fok?
+        pi dup f* sqrt pi fok?
+
+    "TAN" tests:
+        0.0 tan 0.0 fok?
+        pi tan 0.0 fok?
+        pi 4.0 f/ tan 1.0 fok?
+        pi -4.0 f/  tan -1.0 fok?
+;
+
+\   String primitives
+
+80 string tstr
+80 string tstr1
+
+: teststr
+    "STRCPY" tests:
+        "This is a test string" tstr strcpy tstr "This is a test string" sok?
+        "Hello" tstr strcpy tstr "Hello" sok?
+        "" tstr strcpy tstr "" sok?
+
+    "S!" tests:
+        "This is a test string" tstr s! tstr "This is a test string" sok?
+        "Hello" tstr s! tstr "Hello" sok?
+        "" tstr s! tstr "" sok?
+
+    "STRCAT" tests:
+        "Initial string " tstr strcpy "to which we add" tstr strcat
+            tstr "Initial string to which we add" sok?
+        "" tstr strcat tstr "Initial string to which we add" sok?
+        " the final touch." tstr strcat
+            tstr "Initial string to which we add the final touch." sok?
+
+    "S+" tests:
+        "Initial string " tstr strcpy "to which we add" tstr s+
+            tstr "Initial string to which we add" sok?
+        "" tstr s+ tstr "Initial string to which we add" sok?
+        " the final touch." tstr s+
+            tstr "Initial string to which we add the final touch." sok?
+
+    "STRLEN" tests:
+        "" strlen 0 ok?
+        "Booga Booga Booga" strlen 17 ok?
+        "Booga Booga Booga" tstr s! tstr strlen 17 ok?
+
+    "STRCHAR" tests:
+        "The quick brown fox jumped" tstr s!
+        tstr "b" strchar tstr 10 + ok?
+        tstr "z" strchar 0 ok?
+        tstr "B" strchar 0 ok?
+
+    "SUBSTR" tests:
+        "The quick brown fox jumped" tstr s!
+        tstr 0 1 tstr1 substr tstr1 "T" sok?
+        tstr 0 0 tstr1 substr tstr1 "" sok?
+        tstr 0 -1 tstr1 substr tstr1 "The quick brown fox jumped" sok?
+        tstr 3 7 tstr1 substr tstr1 " quick " sok?
+        tstr 20 19 tstr1 substr tstr1 "jumped" sok?
+        tstr 26 10 tstr1 substr tstr1 "" sok?
+
+    "STRCMP" tests:
+        "a" "b" strcmp -1 ok?
+        "a" "a" strcmp 0 ok?
+        "b" "a" strcmp 1 ok?
+        "Foose1" "Foose2" strcmp -1 ok?
+        "Fingers" "Finger" strcmp 1 ok?
+
+    "COMPARE" tests:
+        "a" "b" compare -1 ok?
+        "a" "a" compare 0 ok?
+        "b" "a" compare 1 ok?
+        "Foose1" "Foose2" compare -1 ok?
+        "Fingers" "Finger" compare 1 ok?
+
+    "STRFORM" tests:
+        -11 "Test <%ld> 1" tstr strform tstr "Test <-11> 1" sok?
+        0x1A2E "Test <%lX> 2" tstr strform tstr "Test <1A2E> 2" sok?
+        07713 "Test <%lo> 3" tstr strform tstr "Test <7713> 3" sok?
+
+    "FSTRFORM" tests:
+        -1.275 "Test <%g> 1" tstr fstrform tstr "Test <-1.275> 1" sok?
+\       Following test may be disabled due to disagreement over %e format:
+        -1.285 "Test <%e> 2" tstr fstrform tstr "Test <-1.285000e+00> 2" sok?
+        1.9976873e2 "Test <%5.2f> 3" tstr fstrform tstr "Test <199.77> 3" sok?
+
+    "STRINT" tests:
+        "-123456Muck" tstr s! tstr strint tstr 7 + -123456   2 nok?
+        "89827" tstr s! tstr strint tstr 5 + 89827   2 nok?
+        "Bilge" tstr s! tstr strint tstr 0   2 nok?
+        "  0771234Octal!" tstr s! tstr strint tstr 9 + 258716  2 nok?
+        "  0xBEEFABEGHex!" tstr s! tstr strint tstr 11 + 200211134  2 nok?
+
+    "STRREAL" tests:
+        "-99.1786X" tstr s! tstr strreal tstr 8 + -99.1786  2 nok?
+        "   1.234E2" tstr s! tstr strreal tstr 10 + 123.4  2 nok?
+        "Bilge" tstr s! tstr strreal tstr 0.0   2 nok?
+        "  0771234Real" tstr s! tstr strreal tstr 9 + 771234.0  2 nok?
+\       Following test disabled because some libraries permit hexadecimal
+\       floating point constants.
+\       "  0xBEEF0ABEGHex!" tstr s! tstr strreal tstr 3 + 0.0  2 nok?
+;
+
+\   File I/O
+
+file fio
+variable fp1
+
+: testfile
+    "regtest.tmp" tstr s!
+
+    "FOPEN" tests:
+        tstr 15 fio fopen -1 ok?
+
+    "FWRITE" tests:
+        "I work on Unix\n" dup strlen dup rot fio fwrite ok?
+        "I work on DOS and OS/2\r\n" dup strlen dup rot fio fwrite ok?
+        fio ftell hp !
+        " Never on Macintoshes\r" dup strlen dup rot fio fwrite ok?
+        "I work on VAXes too\n\r" dup strlen dup rot fio fwrite ok?
+
+    "FSEEK" tests:
+        fio ftell fp1 ! 0 0 fio fseek fio ftell 0 ok?
+        0 2 fio fseek fio ftell fp1 @ ok?
+        hp @ 0 fio fseek -4 1 fio fseek fio ftell hp @ 4 - ok?
+
+    "FWRITE" tests:
+        hp @ 0 fio fseek
+        "U work" dup strlen dup rot fio fwrite ok?
+
+    "FREAD" tests:
+        hp @ 0 fio fseek -6 1 fio fseek
+        0 tstr1 29 + c!
+        fio 29 tstr1 fread 29 ok?
+        tstr1 "OS/2\r\nU work on Macintoshes\rI" sok?
+
+    "FGETC" tests:
+        fio fgetc fio fgetc fio fgetc 0 2 fio fseek fio fgetc
+            0x20 0x77 0x6F -1   4 nok?
+
+    "FPUTC" tests:
+        hp @ 0 fio fseek 0x49 fio fputc 0x49 ok?
+
+    "FCLOSE" tests:
+        fio fclose
+
+    "FOPEN" tests:
+        tstr 5 fio fopen -1 ok?
+
+    "FGETS" tests:
+        fio tstr1 fgets -1 ok? tstr1 "I work on Unix" sok?
+        fio tstr1 fgets -1 ok? tstr1 "I work on DOS and OS/2" sok?
+        fio tstr1 fgets -1 ok? tstr1 "I work on Macintoshes" sok?
+        fio tstr1 fgets -1 ok? tstr1 "I work on VAXes too" sok?
+        fio tstr1 fgets 0 ok?
+        fio fclose
+
+    "FOPEN" tests:
+        tstr 10 fio fopen -1 ok?
+
+    "FPUTS" tests:
+        "In the eyes of a wise judge, proofs by" fio fputs -1 ok?
+        "reasoning are of more value than witnesses." fio fputs -1 ok?
+        "               -- Cicero, 50 B.C" fio fputs -1 ok?
+        fio fclose
+
+    "FOPEN" tests:
+        tstr 5 fio fopen -1 ok?
+
+    "FGETS" tests:
+        fio tstr1 fgets -1 ok?
+        tstr1 "In the eyes of a wise judge, proofs by" sok?
+        fio tstr1 fgets -1 ok?
+        tstr1 "reasoning are of more value than witnesses." sok?
+        fio tstr1 fgets -1 ok?
+        tstr1 "               -- Cicero, 50 B.C" sok?
+        fio tstr1 fgets 0 ok?
+        fio fclose
+
+    "FDELETE" tests:
+        "nonesuch.tmp" fdelete 0 ok?
+        tstr fdelete -1 ok?
+        tstr 5 fio fopen 0 ok?
+;
+
+\   Dictionary field access
+
+9900 constant problems
+
+: testdict
+    "FIND" tests:
+        "DROP" find ['] drop -1   2 nok?
+        "drOp" find ['] drop -1   2 nok?
+        "literal" find ['] literal 1  2 nok?
+        "Unknown" tstr s! tstr find tstr 0   2 nok?
+
+    ">NAME" tests:
+        "testint" find drop >name tstr name>s! tstr "TESTINT" sok?
+
+    ">LINK" tests:
+        "e" find drop >link @ ['] pi ok?
+
+    ">BODY" tests:
+        problems 9900 ok?
+        ['] problems >body 80386 swap ! problems 80386 ok?
+
+    "BODY>" tests:
+        ['] problems >body dup body> swap @ "problems" find drop 80386 2 nok?
+
+    "NAME>" tests:
+        "problems" find drop >name dup tstr name>s!
+            tstr "PROBLEMS" strcmp swap name>  0 ['] problems 2 nok?
+
+    "LINK>" tests:
+        "e" find drop >link dup @ swap link> ['] pi ['] e   2 nok?
+
+    "N>LINK" tests:
+        "e" find drop >name dup tstr name>s!
+            tstr "E" strcmp swap n>link @ 0 ['] pi 2 nok?
+
+    "L>NAME" tests:
+        "e" find drop >link l>name tstr name>s! tstr "E" sok?
+
+    "S>NAME!" tests:
+        "problems" find drop >name "DOUBLE-TROUBLE" swap s>name!
+            "double-Trouble" find ['] problems -1 2 nok?
+;
+
+\   Test runtime evaluation
+
+: testeval
+    "EVALUATE" tests:
+        2.17 sin 0 "2.17 sin" evaluate 2 nok?
+;
+
+\   Run all the regression subtests
+
+testint
+teststk
+test2stk
+testheap
+testvar
+testarray
+testrstk
+testloop
+testfloat
+testmath
+teststr
+testfile
+testdict
+testeval
+
+\   Low-level control structure primitives
+
+: xif compile ?branch >mark ; immediate
+: xelse compile branch >mark swap >resolve ; immediate
+: xthen >resolve ; immediate
+: xbegin <mark ; immediate
+: xuntil compile ?branch <resolve ; immediate
+: xstate state @ ; immediate
+: cseven compile (lit) 8 , compile 1- ; immediate
+: immdef compile (lit) [ 3 4 5 + * ] , ; immediate
+: flint create , does> @ float ;
+
+-198 flint f-198
+
+: testlctl
+    ">MARK->RESOLVE" tests:
+        99 0 xif negate xthen 99 ok?
+        99 1 xif negate xthen -99 ok?
+        99 0x80000000 xif negate xthen -99 ok?
+        99 -928 xif negate xthen -99 ok?
+        0 xif 88 xelse 99 xthen 99 ok?
+        1 xif 88 xelse 99 xthen 88 ok?
+        -1 xif 88 xelse 99 xthen 88 ok?
+        2 0 do
+            2 0 do
+                i 1 and xif
+                    j 1 and xif
+                        3
+                    xelse
+                        2
+                    xthen
+                xelse
+                    j 1 and xif
+                        1
+                    xelse
+                        0
+                    xthen
+                xthen
+                i 2* j + ok?
+            loop
+        loop
+
+    "<MARK-<RESOLVE" tests:
+        0 0 xbegin 1+ swap 2+ swap dup 10 = xuntil   20 10   2 nok?
+
+    "COMPILE" tests:
+        cseven 7 ok?
+
+    "[COMPILE]" tests:
+        9 2 [compile] * 18 ok?
+        [compile] xstate 0 ok?
+
+    "[ ... ]" tests:
+        immdef 27 ok?
+
+    "EXECUTE" tests:
+        ['] + 4 5 rot execute 9 ok?
+
+    "CREATE-DOES>" tests:
+        f-198 -198.0 fok?
+
+    "STATE" tests:
+        state @ 0 ok?
+        xstate                        \ Will run at compile time; tested below
+;
+    "STATE" tests:                    \ Test compiler state
+        0<> -1 ok?
+
+    "'" tests:
+        ' (nest) "(nest)" find drop ok?
+
+testlctl
+
+    "QUIT" tests:
+        : testquit 20 0 do i 10 = if i 1+ quit then loop ;
+        testquit 11 ok?
+
+    "ABORT" tests:
+        : testabort 20 0 do i 14 = if i 2+ abort then loop ;
+        99 testabort depth 0 ok?
+
+    "FORGET" tests:
+        : konstant create , does> @ negate ;
+        here hp !
+        888 constant k888
+        k888 888 ok?
+        111 constant k111
+        forget k888
+        here hp @ ok?
+        888 konstant k888
+        -56 constant k111
+        k111 k888 -56 -888   2 nok?
+        forget k888
+        here hp @ ok?
+
+\   Loading programs from a file
+
+: testload
+    "FLOAD" tests:
+        "regtemp.tmp" tstr s!
+        tstr 10 fio fopen -1 ok?
+        "XX : 8times 8 * ;" fio fputs -1 ok?
+        ": 11plus 11 + ;" fio fputs -1 ok?
+        fio fclose
+        tstr 5 fio fopen -1 ok?
+        3 0 fio fseek fio fload 0 ok?
+        fio fclose
+        "regtemp.tmp" fdelete -1 ok?
+;
+
+testload
+3 8times 11plus 11plus 46 ok?
+
+\   Print error summary
+
+: errcount
+    errors @ if
+        errors @ 1 = if
+            "1 error.\n" stderr fputs drop cr
+        else
+            errors ? ." "errors." cr
+        then
+    else
+        "No errors.\n" stdout fputs drop
+    then
+;
+errcount
+
+\   Console I/O functions.  Because the output from these test is
+\   likely to be confusing, this test is not automatically run.
+
+: inline
+    75 0 do
+        stdin fgetc dup
+        32 < if
+            drop 0 tstr i + c!
+            leave
+        then
+        tstr i + c!
+    loop
+;
+
+: testcons
+    "CONIO" tests:
+        ." "Console I/O tests:\n"
+        ." "The following two lines should be identical..." cr
+        ." ":: 1234 :: -1234.5\n"
+        ":: " type 1234 . ":: " type -1234.5 f. cr 0 0 ok?
+        ." "Please type in the next line exactly as it appears:\n"
+        ." "Test 1234\n"
+        inline
+        tstr "Test 1234" sok?
+
+    "TRACE" tests:
+        ." "Next two lines of output should be:\n"
+        ." "Trace: (LIT) 0\nTrace: TRACE\n"
+        1 trace
+        0 trace cr
+
+    "WALKBACK" tests:
+        0 walkback
+        1 walkback
+
+    "MEMSTAT" tests:
+        memstat
+
+    "SYSTEM" tests:
+        ." "\n\nEnter an operating system command to be used\n"
+        ." "to test the SYSTEM primitive.  Example: ls or DIR\n"
+        inline
+        tstr system 0 ok?
+
+    "WORDSUSED" tests:
+        ." "\nPress RETURN to begin list of words used:" inline wordsused
+        0 0 ok?
+
+    "WORDS" tests:
+        ." "\nPress RETURN to begin list of words defined:" inline words
+        0 0 ok?
+
+    "WORDSUNUSED" tests:
+        ." "\nWords not executed in this test:\n"
+        wordsunused
+;
+
+.( "For console I/O tests, use \"./atlast -iregress\" and enter TESTCONS\n"

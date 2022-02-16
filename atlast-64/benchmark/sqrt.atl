@@ -1,0 +1,49 @@
+variable x
+variable y
+
+: csqrt
+        dup 0.0 f< if
+           cr ." "SQRT: Negative argument!"
+           exit
+        then
+        dup 0.0 f<> if
+           dup dup x !
+           1.893872 f* 0.154116 f+
+           1.047988 f* 1.0 f+
+           f/ y !                  \ y=(0.154116+1.893872*x)/(1.0+1.047988*x)
+
+           y @                     \ y
+           0.0                     \ y c
+           begin
+                 swap              \ c y
+                 dup               \ c y y
+                 x @               \ c y y x
+                 over              \ c y y x y
+                 f/                \ c y y x/y
+                 f-                \ c y y-x/y
+                 -0.5              \ c y (y-x/y) -0.5
+                 f*                \ c y (y-x/y)*-0.5
+                 dup               \ cl y c c
+                 rot               \ cl c c y
+                 f+                \ cl c c+y
+                 rot               \ c c+y cl
+                 rot               \ c+y cl c
+                 swap              \ c+y c cl
+                 over              \ c+y c cl c
+                 f=                \ c+y c =0?
+           until
+           drop
+        then
+;
+
+variable niter
+
+1000000 niter !
+
+: cbenchmark niter @ 0 do 2.0 csqrt drop loop ." "Done\n" ;
+: sbenchmark niter @ 0 do 2.0 sqrt drop loop ." "Done\n" ;
+
+.( "\nUse \"number niter !\" to set number of iterations.\n\n"
+
+.( "Type \"cbenchmark\" to run the CSQRT benchmark.\n"
+.( "Type \"sbenchmark\" to run the SQRT benchmark.\n"

@@ -1,0 +1,145 @@
+
+                         Atlast Development Log
+            
+                             by John Walker
+            
+2007 October 7
+
+Changed the development version to 1.2.
+
+Added a new READONLYSTRINGS package configuration definition which
+causes the names of primitive words to be copied to a monolithic
+buffer in which WORDSUSED may tag them when used without running
+afoul of GCCs fascist enforcement of read-only strings.  Note that
+even if READONLYSTRINGS is defined, the copy of the primitive names
+is made only if WORDSUSED is also defined.
+
+2007 October 9
+
+Created a new "dist" target which builds the distribution archive
+automatically, containing only the files it is supposed to
+include, regardless of the contents of the development directory.
+
+Updated the MANIFEST to reflect files included in the current
+distribution.  Removed the obsolete RTF version of the manual.
+Replaced the PostScript version of the LaTeX manual with a PDF
+edition.
+
+Removed READONLYSTRINGS from the package configuration section
+and made it a global configuration parameter, set by default from
+the C compiler command-line options in the Makefile.  It is not
+really a package and fits better as a global configuration item,
+which is how it is now documented.
+
+Completed the transmogrification of the manual into XHTML 1.0
+Strict.  Retrofitted substantive changes to the LaTeX manual
+and rebuilt the PDF.
+
+2007 October 10
+
+Removed the README from the MANIFEST and distribution; it is replaced
+by the XHTML documentation.  A place-holder README will be placed in
+the Web tree which directs anybody who links to it to the Web
+documentation.
+
+Modified the command line processing code in atlmain.c to
+dispense with an erroneous "uninitialised variable" natter
+from GCC 4.1.2 in -O3 -Wall mode.
+
+Modified P_strreal in atlast.c to use a union to place
+the scanned floating point number onto the stack instead
+of the cast pointer which sufficed for the last 17 years.
+GCC 4.1.2 not only generates a:
+   dereferencing type-punned pointer will break strict-aliasing rules
+warning in -O3 -Wall mode, it actually generates incorrect
+code for this case.
+
+Modified the TokReal case of atl_eval in atlast.c to use a union
+to store a scanned real number token onto the compiled output
+(comple state) or the stack (execution state).  This avoids the
+GCC natter mentioned above which, in this case, did not generate
+incorrect code with the -O3 option.
+
+If READONLYSTRINGS was defined, atl_primdef() in atlast.c failed to
+correctly add the names of user-defined primitives to the dictionary
+because it erroneously referenced the built-in primitive table (primt)
+rather than the primitive table passed as the argument (pt)--fixed.
+
+The sample main program in the "Integrating Atlast" section of the
+manual would generate a compiler warning on GCC with -Wall because
+the main program was not declared as returning an int--fixed.
+
+Added a new primdeftest.c program, which tests definition of the
+TIME and HHMMSS primitives as documented in the manual, to the
+MANIFEST and source distribution.
+
+2014 July 3
+
+Changed development version number to 2.0.
+
+Completed initial port to 64-bit architecture.  The 64-bit
+implementation uses a different (and simpler) memory architecture
+which takes advantage of the fact that integers, floating point
+numbers, and pointers are all the same 64 bit length.  Given the
+major changes all over the program, I decided not to use
+conditional compilation but rather diverge the source code
+stream for the 64-bit version.  Because floating point values
+are now the same size of integers, programs which use floating
+point are not source code compatible with programs for the original
+32-bit version.  For example, if you wanted to duplicate the top
+floating point value on the stack, you previously had to use
+2DUP since it occuiped two stack items, but now you must use
+DUP, as it now uses just one.
+
+I made the corresponding changes to the regression test, which were
+major since not only did many floating point tests need to be
+updated, but also the tests for the low-level stack and heap
+allocation required modification to accommodate the 8 byte size
+of stack items.  The regression test now runs cleanly.
+
+I removed the ALIGNMENT option from the default build in the
+Makefile.  With all stack items now being 8 bytes, there should
+be no need for this on at least the x86_64 architecture most
+people will be using.  If you are building for an architecture
+which does require alignment, you can define the tag: it still
+works.
+
+2014 July 4
+
+Rebuilt the regression test expected output file, regout.txt,
+to accommodate changes due to the new memory architecture.
+
+2014 July 5
+
+I decided that supporting the ANS FORTH 94 floating point primitive
+names was wasteful and not in the spirit of Atlast, especially since
+we can now take advantage of the fact that integers, pointers, and
+real numbers are all the same length.  I removed the synonym definitions
+and updated the regression test accordingly.
+
+Completed a port of the floating point benchmark to Atlast.  This is
+based upon the original Gforth version.
+
+Updated the XHTML documentation.  The changes consequent to the new
+memory architecture were major.  I also added documentation for the
+EVALUATE package and word, which has been in there for ages but did
+not appear in the documentation.  A few typographical errors in the sample
+programs were corrected.
+
+2014 July 6
+
+Completely reorganised the development and distribution directory
+structure.  There are now subdirectories for benchmark (the Atlast
+vs. C square root benchmark), examples (examples from the manual
+plus the floating point benchmark), and regression (the regression
+test and expected output).
+
+Updated the Makefile to create the new distribution archive format.
+
+Added code to atlast.c to perform a compile-time test, using a
+hideously ugly hack from the Linux kernel, to verify that stackitem,
+pointer, and double types are all 8 bytes.  If this is not the case,
+compilation of this file will fail and the user, upon chasing down
+the error, will encounter a comment which explains that the program
+must be built with a memory architecture in which this is the case.
+

@@ -1,0 +1,74 @@
+
+                         Atlast Development Log
+            
+                             by John Walker
+            
+2007 October 7
+
+Changed the development version to 1.2.
+
+Added a new READONLYSTRINGS package configuration definition which
+causes the names of primitive words to be copied to a monolithic
+buffer in which WORDSUSED may tag them when used without running
+afoul of GCCs fascist enforcement of read-only strings.  Note that
+even if READONLYSTRINGS is defined, the copy of the primitive names
+is made only if WORDSUSED is also defined.
+
+2007 October 9
+
+Created a new "dist" target which builds the distribution archive
+automatically, containing only the files it is supposed to
+include, regardless of the contents of the development directory.
+
+Updated the MANIFEST to reflect files included in the current
+distribution.  Removed the obsolete RTF version of the manual.
+Replaced the PostScript version of the LaTeX manual with a PDF
+edition.
+
+Removed READONLYSTRINGS from the package configuration section
+and made it a global configuration parameter, set by default from
+the C compiler command-line options in the Makefile.  It is not
+really a package and fits better as a global configuration item,
+which is how it is now documented.
+
+Completed the transmogrification of the manual into XHTML 1.0
+Strict.  Retrofitted substantive changes to the LaTeX manual
+and rebuilt the PDF.
+
+2007 October 10
+
+Removed the README from the MANIFEST and distribution; it is replaced
+by the XHTML documentation.  A place-holder README will be placed in
+the Web tree which directs anybody who links to it to the Web
+documentation.
+
+Modified the command line processing code in atlmain.c to
+dispense with an erroneous "uninitialised variable" natter
+from GCC 4.1.2 in -O3 -Wall mode.
+
+Modified P_strreal in atlast.c to use a union to place
+the scanned floating point number onto the stack instead
+of the cast pointer which sufficed for the last 17 years.
+GCC 4.1.2 not only generates a:
+   dereferencing type-punned pointer will break strict-aliasing rules
+warning in -O3 -Wall mode, it actually generates incorrect
+code for this case.
+
+Modified the TokReal case of atl_eval in atlast.c to use a union
+to store a scanned real number token onto the compiled output
+(comple state) or the stack (execution state).  This avoids the
+GCC natter mentioned above which, in this case, did not generate
+incorrect code with the -O3 option.
+
+If READONLYSTRINGS was defined, atl_primdef() in atlast.c failed to
+correctly add the names of user-defined primitives to the dictionary
+because it erroneously referenced the built-in primitive table (primt)
+rather than the primitive table passed as the argument (pt)--fixed.
+
+The sample main program in the "Integrating Atlast" section of the
+manual would generate a compiler warning on GCC with -Wall because
+the main program was not declared as returning an int--fixed.
+
+Added a new primdeftest.c program, which tests definition of the
+TIME and HHMMSS primitives as documented in the manual, to the
+MANIFEST and source distribution.

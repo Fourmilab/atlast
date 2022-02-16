@@ -1,0 +1,412 @@
+(  John Walker's Floating Point Benchmark, derived from...
+
+        Marinchip Interactive Lens Design System
+               John Walker   December 1980
+
+                   by John Walker
+               http://www.fourmilab.ch/
+
+    This program may be used, distributed, and modified freely as
+    long as the origin information is preserved.
+
+    This is a complete optical design raytracing algorithm, stripped
+    of its user interface and recast into ATLAST. It not only
+    determines execution speed on an extremely floating point
+    [including trig function] intensive real-world application, it
+    allows you to check accuracy on an algorithm that is exquisitely
+    sensitive to errors. The performance of this program is
+    typically far more sensitive to changes in the efficiency of the
+    trigonometric library routines than the average floating point
+    program.
+
+    This program works only on 64-bit versions of ATLAST [2.x].
+    You will need to increase the heap size to 1050 of greater in
+    order to run this program.
+
+    Implemented in July 2014 by John Walker.
+)
+
+    \   Emulation of ANS FORTH-94 words
+
+    \   Is a real number equal to zero ?
+    : f0=                     ( r -- n )
+        0.0 f=
+    ;
+
+    \   Compute bytes in number of floats on stack
+    : floats                       ( n -- n )
+        8 *
+    ;
+
+    \   Iterations of benchmark to run (< 0: no user interface)
+    -100 constant number_of_iterations
+
+    \   Wavelengths of standard spectral lines in Angstroms
+    \           (Not all are used in this program)
+
+    7621.0   constant a-line
+    6869.955 constant b-line
+    6562.816 constant c-line
+    5895.944 constant d-line
+    5269.557 constant e-line
+    4861.344 constant f-line
+    4340.477 constant g'-line
+    3968.494 constant h-line
+
+    \   Design array and access words
+
+    4.0 constant design_clear_aperture
+    4 constant number_of_surfaces
+    create design number_of_surfaces 4 * floats allot
+
+    : curvature_radius{n}           ( n -- addr )
+        4 floats * design +
+    ;
+
+    : index_of_refraction{n}        ( n -- addr )
+        4 floats * 1 floats + design +
+    ;
+
+    : dispersion{n}                 ( n -- addr )
+        4 floats * 2 floats + design +
+    ;
+
+    : edge_thickness{n}             ( n -- addr )
+        4 floats * 3 floats + design +
+    ;
+
+    \   Surface 0
+        27.05   0 curvature_radius{n} !
+        1.5137  0 index_of_refraction{n} !
+        63.6    0 dispersion{n} !
+        0.52    0 edge_thickness{n} !
+    \   Surface 1
+        -16.68  1 curvature_radius{n} !
+        1.0     1 index_of_refraction{n} !
+        0.0     1 dispersion{n} !
+        0.138   1 edge_thickness{n} !
+    \   Surface 2
+        -16.68  2 curvature_radius{n} !
+        1.6164  2 index_of_refraction{n} !
+        36.7    2 dispersion{n} !
+        0.38    2 edge_thickness{n} !
+    \   Surface 3
+        -78.1   3 curvature_radius{n} !
+        1.0     3 index_of_refraction{n} !
+        0.0     3 dispersion{n} !
+        0.0     3 edge_thickness{n} !
+
+    \   Define cot in terms of tan
+
+    : cot                           ( r1 -- r2 )
+        tan 1.0 swap f/
+    ;
+
+    (      Calculate passage through surface
+
+           If the variable paraxial is Paraxial_Ray, the trace through
+           the surface will be done using the paraxial approximations.
+           Otherwise, the normal trigonometric trace will be done.
+
+           This subroutine takes the following global inputs:
+
+           radius_of_curvature     Radius of curvature of surface
+                                   being crossed.  If 0, surface is
+                                   plane.
+
+           object_distance         Distance of object focus from
+                                   lens vertex.  If 0, incoming
+                                   rays are parallel and
+                                   the following must be specified:
+
+           ray_height              Height of ray from axis.  Only
+                                   relevant if $object_distance == 0
+
+           axis_slope_angle        Angle incoming ray makes with axis
+                                   at intercept
+
+           from_index              Refractive index of medium being left
+
+           to_index                Refractive index of medium being
+                                   entered.
+
+           The outputs are the following global variables:
+
+           object_distance         Distance from vertex to object focus
+                                   after refraction.
+
+           axis_slope_angle        Angle incoming ray makes with axis
+                                   at intercept after refraction.
+    )
+
+    variable aberr_lspher
+    variable aberr_osc
+    variable aberr_lchrom
+    variable max_lspher
+    variable max_osc
+    variable max_lchrom
+    variable radius_of_curvature
+    variable object_distance
+    variable ray_height
+    variable axis_slope_angle
+    variable from_index
+    variable to_index
+
+    variable paraxial
+
+    \   Local variables in transit_surface
+
+    variable iang                       \ Incidence angle
+    variable rang                       \ Refraction angle
+    variable iang_sin                   \ Incidence angle sin
+    variable rang_sin                   \ Refraction angle sin
+    variable old_axis_slope_angle       \ Incoming axis slope angle
+    variable sagitta                    \ Sagitta (radius from axis)
+
+    : transit_surface_paraxial          ( -- )
+        radius_of_curvature @ f0= not if
+            object_distance @ f0= if
+                0.0 axis_slope_angle !
+                ray_height @ radius_of_curvature @ f/ iang_sin !
+            else
+                object_distance @ radius_of_curvature @ f-
+                    radius_of_curvature @ f/ axis_slope_angle @ f*
+                    iang_sin !
+            then
+            from_index @ to_index @ f/ iang_sin @ f* rang_sin !
+            axis_slope_angle @ old_axis_slope_angle !
+            axis_slope_angle @ iang_sin @ f+
+                rang_sin @ f- axis_slope_angle !
+            object_distance @ f0= not if
+                object_distance @ old_axis_slope_angle @ f*
+                    ray_height !
+            then
+            ray_height @ axis_slope_angle @ f/ object_distance !
+        else
+            object_distance @
+                to_index @ from_index @ f/ f* object_distance !
+            axis_slope_angle @
+                from_index @ to_index @ f/ f* axis_slope_angle !
+        then
+    ;
+
+    : transit_surface_marginal          ( -- )
+        radius_of_curvature @ f0= not if
+            object_distance @ f0= if
+                0.0 axis_slope_angle !
+                ray_height @ radius_of_curvature @ f/ iang_sin !
+            else
+                object_distance @ radius_of_curvature @ f-
+                    radius_of_curvature @ f/
+                    axis_slope_angle @ sin f* iang_sin !
+            then
+            iang_sin @ asin iang !
+            from_index @ to_index @ f/ iang_sin @ f* rang_sin !
+            axis_slope_angle @ old_axis_slope_angle !
+            axis_slope_angle @
+                iang @ f+ rang_sin @ asin f- axis_slope_angle !
+            old_axis_slope_angle @ iang @ f+ 0.5 f* sin sagitta !
+            radius_of_curvature @ sagitta @ dup f* f* 2.0 f*
+                sagitta !
+            radius_of_curvature @
+                old_axis_slope_angle @ iang @ f+ sin f*
+                axis_slope_angle @ cot f* sagitta @ f+
+                object_distance !
+        else
+            from_index @ to_index @ f/ asin fnegate
+                axis_slope_angle sin f* rang !
+            object_distance @
+                to_index @
+                rang @ fnegate cos f*
+                from_index @ axis_slope_angle @ cos f* f/ f*
+                object_distance !
+            rang @ fnegate axis_slope_angle !
+        then
+    ;
+
+    : transit_surface                   ( -- )
+        paraxial @ if
+            transit_surface_paraxial
+        else
+            transit_surface_marginal
+        then
+    ;
+
+    \   Perform ray trace in specific spectral line
+
+    variable sline                      \ Spectral line in angstroms
+    variable csurf                      \ Surface counter
+
+    : trace_line                        ( r r -- )
+        ray_height !
+        sline !
+        0.0 object_distance !
+        1.0 from_index !
+
+        0 csurf !
+        begin
+            csurf @ number_of_surfaces <
+        while
+            csurf @ curvature_radius{n} @ radius_of_curvature !
+            csurf @ index_of_refraction{n} @ to_index !
+
+                1.0 to_index @ f< if
+                to_index @ d-line sline @ f-
+                c-line f-line f- f/
+                to_index @ 1.0 f- csurf @ dispersion{n} @ f/ f* f+
+                    to_index !
+            then
+
+            transit_surface
+
+            to_index @ from_index !
+
+            csurf @ number_of_surfaces 1- < if
+                object_distance @ csurf @ edge_thickness{n} @ f-
+                    object_distance !
+            then
+
+            1 csurf +!
+       repeat
+    ;
+
+    \   evaluate_design performs ray traces on a given design with a
+    \   specified clear aperture and calculates spherical aberration,
+    \   coma, and chromatic aberration, along with the conventional
+    \   acceptable upper bounds for these quantities.
+
+    variable ed_sagitta
+    variable ed_d_marginal_od
+    variable ed_d_marginal_sa
+    variable ed_d_paraxial_od
+    variable ed_d_paraxial_sa
+    variable ed_c_marginal_od
+    variable ed_f_marginal_od
+
+    : evaluate_design
+        design_clear_aperture 0.5 f* ed_sagitta !
+
+        \   Marginal ray in D
+        0 paraxial !
+        d-line ed_sagitta @ trace_line
+        object_distance @ ed_d_marginal_od !
+        axis_slope_angle @ ed_d_marginal_sa !
+
+        \   Paraxial ray in D
+        1 paraxial !
+        d-line ed_sagitta @ trace_line
+        object_distance @ ed_d_paraxial_od !
+        axis_slope_angle @ ed_d_paraxial_sa !
+
+        \   Marginal ray in C
+        0 paraxial !
+        c-line ed_sagitta @ trace_line
+        object_distance @ ed_c_marginal_od !
+
+        \   Marginal ray in F
+        f-line ed_sagitta @ trace_line
+        object_distance @ ed_f_marginal_od !
+
+        \   Compute aberrations of the design
+
+        \   The longitudinal spherical aberration is just the
+        \   difference between where the D line comes to focus
+        \   for paraxial and marginal rays.
+        ed_d_paraxial_od @ ed_d_marginal_od @ f- aberr_lspher !
+
+        \   The offense against the sine condition is a measure
+        \   of the degree of coma in the design.  We compute it
+        \   as the lateral distance in the focal plane between
+        \   where a paraxial ray and marginal ray in the D line
+        \   come to focus.
+        1.0 ed_d_paraxial_od @ ed_d_paraxial_sa @ f*
+              ed_d_marginal_sa @ sin ed_d_marginal_od @ f* f/ f-
+        aberr_osc !
+
+        \   The axial chromatic aberration is the distance between
+        \   where marginal rays in the C and F lines come to focus.
+        ed_f_marginal_od @ ed_c_marginal_od @ f- aberr_lchrom !
+
+        \   Compute maximum acceptable values for each aberration
+
+        \   Maximum longitudinal spherical aberration, which is
+        \   also the maximum for axial chromatic aberration.  This
+        \   is computed for the D line.
+        0.0000926 ed_d_marginal_sa @ sin dup f* f/
+            dup max_lspher ! max_lchrom !
+
+        \   Maximum offense against the sine correction is a constant.
+        0.0025 max_osc !
+    ;
+
+    \   Print the results of the design evaluation
+
+    132 string estr
+
+    : evaluation_report
+        CR
+
+        ." "   Marginal ray   "
+            ed_d_marginal_od @ "%21.11f" estr fstrform estr type
+            ed_d_marginal_sa @ "%16.11f" estr fstrform estr type CR
+
+        ." "   Paraxial ray   "
+            ed_d_paraxial_od @ "%21.11f" estr fstrform estr type
+            ed_d_paraxial_sa @ "%16.11f" estr fstrform estr type CR
+
+        ." "Longitudinal spherical aberration:      "
+            aberr_lspher @ "%16.11f" estr fstrform estr type CR
+        ." "    (Maximum permissible):              "
+            max_lspher @ "%16.11f" estr fstrform estr type CR
+
+        ." "Offense against sine condition (coma):  "
+            aberr_osc @ "%16.11f" estr fstrform estr type CR
+        ." "    (Maximum permissible):              "
+            max_osc @ "%16.11f" estr fstrform estr type CR
+
+        ." "Axial chromatic aberration:             "
+            aberr_lchrom @ "%16.11f" estr fstrform estr type CR
+        ." "    (Maximum permissible):              "
+            max_lchrom @ "%16.11f" estr fstrform estr type CR
+    ;
+
+    number_of_iterations abs constant iterations
+    variable ni
+    80 string ibuf
+
+    : run_benchmark
+        number_of_iterations 0 > if
+            CR
+            ." "Ready to begin John Walker's floating point accuracy" CR
+            ." "and performance benchmark.  " iterations .
+                ." "iterations will be made." CR
+            CR
+            ." "Measured run time in seconds should be divided by "
+                iterations 1000 / . CR
+            ." "to normalise for reporting results.  For archival" CR
+            ." "results, adjust iteration count so the benchmark runs" CR
+            ." "about five minutes." CR
+            CR ." "Start the timer: "
+            stdin ibuf fgets drop
+            CR
+        then
+
+        0 ni !
+        begin
+            ni @ iterations <
+        while
+            evaluate_design
+            1 ni +!
+        repeat
+
+        number_of_iterations 0 > if
+            ." "Stop the timer: "
+            stdin ibuf fgets drop
+        then
+
+        evaluation_report
+    ;
+
+    \   And now, let's run the benchmark!
+
+    run_benchmark

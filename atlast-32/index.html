@@ -1,0 +1,401 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Atlast</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="description" content="Atlast" />
+<meta name="author" content="John Walker" />
+<meta name="keywords" content="Atlast, FORTH, embedded, scripting, threaded, language" />
+<meta name="robots" content="index" />
+<style type="text/css">
+<!--
+    
+a:link,  a:visited {
+    background-color: rgb(100%, 100%, 100%);
+    color: rgb(0%, 0%, 80%);
+    text-decoration: none;
+}
+
+a:hover  {
+    background-color:  rgb(30%, 30%, 100%);
+    color: rgb(100%, 100%, 100%);
+}
+
+a:active {
+    background-color:  rgb(30%, 30%, 100%);
+    color: rgb(100%, 0%, 0%)
+}
+
+a.i:link, a.i:visited, a.i:hover {
+    background-color:  inherit;
+    color: inherit;
+    text-decoration: none;
+}
+
+blockquote {
+    font-family: sans-serif;
+    font-size: smaller;
+}
+
+body {
+    background-color: #FFFFFF;
+    color: #000000;
+    margin-left: 15%;
+    margin-right: 10%
+}
+
+h1.title {
+    text-align: center;
+    font-size: 36pt;
+    font-weight: normal;
+    margin-bottom: 0pt;
+}
+
+h2.subtitle {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 18pt;
+    font-weight: normal;
+    font-style: italic;
+    margin-top: 0pt;
+}
+
+h3.author {
+    font-size: larger;
+    text-align: center;
+    font-weight: normal;
+}
+
+h3.progname {
+    font-size: 200%;
+    font-family: monospace;
+    text-align: center;
+    border: 1px solid black;
+}
+
+hr.sep {
+    width: 25%;
+}
+
+img.download {
+    border: 0px;
+    vertical-align: middle;
+}
+
+p {
+    text-align: justify;
+}
+
+span.a {                /* Atlast logo */
+    font-variant: small-caps;
+    border-bottom: double black;
+}
+
+
+tt {
+    font-weight: bold;
+}
+
+.ctr {
+    text-align: center;
+}
+-->
+</style>
+</head>
+
+<body>
+
+<h1 class="title">ATLAST</h1>
+
+<h2 class="subtitle">Autodesk
+Threaded Language Application System Toolkit</h2>
+
+<h3 class="author">
+by John Walker<br />
+</h3>
+
+<p>
+<span class="a">Atlast</span> is an attempt to make software component
+technology and open architecture applications commonplace in the
+mainstream software market.  It is both a software component which can
+be readily integrated into existing applications, providing them a
+ready-made macro language and facilities for user extension and
+customisation and, at the same time, it is a foundation upon which new
+applications can be built in an open, component-oriented manner.
+</p>
+
+<p>
+<span class="a">Atlast</span> was developed at Autodesk, Inc. 
+Autodesk returned the rights to me in 1991, and I subsequently placed
+the program in the public domain.  Autodesk's connection with this
+program is purely historical: it is neither endorsed, used, nor supported
+by Autodesk, Inc.
+</p>
+
+<p>
+<span class="a">Atlast</span> is based upon the FORTH-83 language, but
+has been extended in many ways and modified to better serve its
+mission as an embedded toolkit for open, programmable applications. 
+<span class="a">Atlast</span> is implemented in a single file, written
+in portable C; it has been ported to many different machines and
+operating systems, including MS-DOS, OS/2, the Macintosh, and a wide
+variety of Unix machines.  <span class="a">Atlast</span> includes
+native support for floating point, C-like strings, Unix-compatible
+file access, and a wide variety of facilities for embedding within
+applications.  Integers are 32 bits and identifiers can be up to 127
+characters; extensive stack and heap pointer checking is available to
+aid in debugging.  <span class="a">Atlast</span> may be configured at
+compilation time to include only the facilities needed by a given
+application, thus saving memory and increasing execution speed (when
+error checking is disabled).
+</p>
+
+<hr class="sep" />
+
+<p>
+The following extract from the <a href="atlast.html"><span
+class="a">Atlast</span> manual</a> describes the rationale for the
+development of <span class="a">Atlast</span> and its intended scope of
+applications.
+</p>
+
+<p>
+Virtually every industry analyst agrees that open architecture is
+essential to the success of applications.  And yet, even today, we
+write program after program that is closed&mdash;that its users cannot
+program&mdash;that admits of no extensions without our adding to its source
+code.  If we believe intellectually, from a sound understanding of the
+economic incentives in the marketplace, that open systems are better,
+and have seen this belief confirmed repeatedly in the marketplace,
+then the only question that remains is why?  Why not make every
+program an open program?
+</p>
+
+<p>
+Well, because it's <i>hard</i>!  Writing a closed program has
+traditionally been much less work at every stage of the development
+cycle: easier to design, less code to write, simpler documentation,
+and far fewer considerations in the test phase.  In addition, closed
+products are believed to be less demanding of support, although I'll
+argue later that this assumption may be incorrect.
+</p>
+
+<h3>The painful path to programmability</h3>
+
+<p>
+Most programs start out as nonprogrammable, closed applications, then
+painfully claw their way to programmability through the introduction
+of a limited script or macro facility, succeeded by an increasingly
+comprehensive interpretive macro language which grows like topsy and
+without a coherent design as user demands upon it grow.  Finally,
+perhaps, the program is outfitted with bindings to existing languages
+such as C.
+</p>
+
+<p>
+An alternative to this is adopting a standard language as the macro
+language for a product.  After our initial foray into the awful menu
+macro language that still burdens us, AutoCAD took this approach,
+integrating David Betz&rsquo; XLISP, a simple Lisp interpreter which
+was subsequently extended by Autodesk to add floating point, many
+additional Common Lisp functions, and, eventually, access to the
+AutoCAD database.
+</p>
+
+<p>
+This approach has many attractions.  First, choosing a standard
+language allows users to avail themselves of existing books and
+training resources to learn its basics.  The developer of a dedicated
+macro language must create all this material from scratch.  Second,
+an interpretive language, where all programs are represented in ASCII
+code, is inherently portable across computers and operating systems. 
+Once the interpreter is gotten to work on a new system, all the
+programs it supports are pretty much guaranteed to work.  Third, most
+existing languages have evolved to the point that most of the rough
+edges have been taken off their design.  Extending an existing
+language along the lines laid down by its designers is much less
+likely to result in an incomprehensible disaster than growing an
+ad-hoc macro language feature by neat-o feature.
+</p>
+
+<p>
+Unfortunately, interpreters are <i>slow</i>, <i>slow</i>, <i>slow</i>.
+ A simple calculation of the number of instructions of overhead per
+instruction that furthers the execution of the program quickly
+demonstrates that no interpreter is suitable for serious computation.
+ As long as the interpreter is deployed in the role of a macro
+language, this may not be a substantial consideration.  Most early
+AutoLISP&reg;
+programs, for example, spent most of their time submitting commands
+to AutoCAD with the <tt>(command)</tt>
+function.  The execution time of the program was overwhelmingly
+dominated by the time AutoCAD took to perform the commands, not the
+time AutoLISP spent constructing and submitting them.  However, as
+soon as applications tried to do substantial computation, for example
+the parametric object calculations in AutoCAD AEC, the overhead of
+AutoLISP became a crushing burden, verging on intolerable.  The
+obvious alternative was to provide a compiled language.  But that,
+too, has its problems.
+</p>
+
+<h2>Introducing <span class="a">Atlast</span></h2>
+
+<p>
+<span class="a">Atlast</span>&trade; is a toolkit that makes
+applications programmable.  Deliberately designed to be easy to
+integrate both into existing programs and newly-developed ones,
+<span class="a">Atlast</span> provides any program that incorporates it most
+of the benefits of programmability with very little explicit effort on
+the part of the developer.  Indeed, once you begin to &ldquo;think
+<span class="a">Atlast</span>&rdquo; as part of the design cycle,
+you'll probably find that the way you design and build programs
+changes substantially.  I'm coming to think of
+<span class="a">Atlast</span> as the &ldquo;monster that feeds on
+programs,&rdquo; because including it in a program tends to shrink the
+amount of special-purpose code that would otherwise have to be written
+while resulting in finished applications that are open, extensible,
+and more easily adapted to other operating environments such as the
+event driven paradigm.
+</p>
+
+<p>
+The idea of a portable toolkit, integrated into a wide variety of
+products, all of which thereby share a common programming language
+seems obvious once you consider its advantages.  It's surprising that
+such packages aren't commonplace in the industry.  In fact, the only
+true antecedent to <span class="a">Atlast</span> I've encountered in
+my whole twisted path through this industry was the universal macro
+package developed in the mid 1970s by Kern Sibbald and Ben Cranston
+at the University of Maryland.  That package, implemented on Univac
+mainframes, provided a common macro language shared by a wide variety
+of University of Maryland utilities, including a text editor,
+debugger, file dumper, and typesetting language.  While <span
+class="a">Atlast</span> is entirely different in structure and
+operation from the Maryland package, which was an interpretive string
+language, the concept of a cross-product macro language and
+appreciation of the benefits to be had from such a package are
+directly traceable to those roots.
+</p>
+
+<h2>Summary and Conclusions</h2>
+
+<p>
+Everything should be programmable.  <i>Everything!</i>  I have come to
+the conclusion that to write almost any program in a closed manner is
+a mistake that invites the expenditure of uncounted hours
+&ldquo;enhancing&rdquo; it over its life cycle.  Further tweaks,
+&ldquo;features,&rdquo; and &ldquo;fixes&rdquo; often result in a
+product so massive and incomprehensible that it becomes unlearnable,
+unmaintainable, and eventually unusable.
+</p>
+
+<p>
+Far better to invest the effort up front to create a product flexible
+enough to be adapted at will, by its users, to their immediate needs.
+If the product is programmable in a portable, open form, user
+extensions can be exchanged, compared, reviewed by the product
+developer, and eventually incorporated into the mainstream of the
+product.
+</p>
+
+<p>
+It is far, far better to have thousands of creative users expanding
+the scope of one's product in ways the original developers didn't
+anticipate&mdash;in fact, working for the vendor without pay, than it
+is to have thousands of frustrated users writing up wish list requests
+that the vendor can comply with only by hiring people and paying them
+to try to accommodate the perceived needs of the users.  Open
+architecture and programmability not only benefits the user, not only
+makes a product better in the technical and marketing sense, but
+confers a direct economic advantage upon the vendor of such a
+product&mdash;one mirrored in a commensurate disadvantage to the
+vendor of a closed product.
+</p>
+
+<p>
+The chief argument against programmability has been the extra
+investment needed to create open products.
+<span class="a">Atlast</span> provides a way of building open products in
+the same, or less, time than it takes to construct closed ones.  Just
+as no C programmer in his right mind would sit down and write his own
+buffered file I/O package when a perfectly fine one was sitting in the
+library, why re-invent a macro language or other parameterisation and
+programming facility when there's one just sitting there that's as
+fast as native C code for all but the most absurd misapplications,
+takes less than 51K with every gew-gaw and optional feature at its
+command enabled all at once, is portable to any machine that supports
+C by simply recompiling a single file, and can be integrated into a
+typical application at a basic level in less than 15 minutes?
+</p>
+
+<p>
+Am I proposing that every application suddenly look like FORTH?  Of
+course not; no more than output from PostScript printers looks like
+PostScript, or applications that run on 80386 processors resemble
+80386 assembly language.  <span class="a">Atlast</span> is an
+intermediate language, seen only by those engaged in implementing and
+extending the product.  Even then, <span class="a">Atlast</span> is a
+chameleon which, with properly defined words, can look like almost
+anything you like, even at the primitive level of the interpreter.
+</p>
+
+<p>
+Again and again, I have been faced with design situations where I
+knew that I really needed programmability, but didn't have the time,
+the memory, or the fortitude to face the problem squarely and solve
+it the right way.  Instead, I ended up creating a kludge that
+continued to burden me through time.  This is just a higher level
+manifestation of the nightmares perpetrated by old-time programmers
+who didn't have access to a proper dynamic memory allocator or linked
+list package.  Just because programmability is the magic smoke of
+computing doesn't mean we should be spooked by the ghost in the
+machine or hesitant to confer its power upon our customers.
+</p>
+
+<p>
+Don't think of <span class="a">Atlast</span> as FORTH.  Don't think of
+it as a language at all.  The best way to think of
+<span class="a">Atlast</span> is as a library routine that gives you
+<i>programmability</i>, in the same sense other libraries provide file
+access, window management, or graphics facilities.  The whole concept
+of &ldquo;programmability in a can&rdquo; is odd&mdash;it took me two
+years to really got my end effector around it and crush it into
+submission.  Think about it; play with it; and you may discover a
+better way to build applications.
+</p>
+
+<p>
+Open is better.  <span class="a">Atlast</span> lets you build open
+programs in less time than you used to spend writing closed ones. 
+Programs that inherit their open architecture from <span
+class="a">Atlast</span> will share, across the entire product line and
+among all hardware platforms that support it, a common, clean, and
+efficient means of user extensibility.  The potential benefits of this
+are immense.
+</p>
+
+<h2><a name="Download" href="download/1.2/atlast-1.2.tar.gz"><img
+    src="/images/icons/file.png"
+    class="download" alt="" width="40" height="40" /></a>
+    <a href="download/1.2/atlast-1.2.tar.gz">Download atlast-1.2.tar.gz</a>
+    (Gzipped TAR archive)</h2>
+
+<h2 class="nav"><a href="atlast.html"><span class="a">Atlast</span> User Guide</a></h2>
+
+<blockquote>
+    <p>
+     This software is in the public domain.  Permission to use, copy,
+     modify, and distribute this software and its documentation for
+     any purpose and without fee is hereby granted, without any
+     conditions or restrictions.  This software is provided &ldquo;as
+     is&rdquo; without express or implied warranty.
+     </p>
+</blockquote>
+
+<h2><a href="/">Fourmilab Home Page</a></h2>
+
+</body>
+</html>

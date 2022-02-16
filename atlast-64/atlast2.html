@@ -1,0 +1,6521 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Atlast</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="description" content="Atlast" />
+<meta name="author" content="John Walker" />
+<meta name="keywords" content="Atlast, FORTH, embedded, scripting, threaded, language" />
+<meta name="robots" content="index" />
+<style type="text/css">
+<!--
+    
+a:link,  a:visited {
+    background-color: rgb(100%, 100%, 100%);
+    color: rgb(0%, 0%, 80%);
+    text-decoration: none;
+}
+
+a:hover  {
+    background-color:  rgb(30%, 30%, 100%);
+    color: rgb(100%, 100%, 100%);
+}
+
+a:active {
+    background-color:  rgb(30%, 30%, 100%);
+    color: rgb(100%, 0%, 0%)
+}
+
+a.i:link, a.i:visited, a.i:hover {
+    background-color:  inherit;
+    color: inherit;
+    text-decoration: none;
+}
+
+body {
+    background-color: #FFFFFF;
+    color: #000000;
+    margin-left: 15%;
+    margin-right: 10%
+}
+
+div.primitives {
+    margin-left: -10%;
+    margin-right: -5%;
+}
+
+div.wbox {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid black;
+    padding: 0.3em;
+    font-size: larger;
+    color: inherit;
+    background-color: #E0E0E0;
+}
+
+dl.tj dd {
+    text-align: justify;
+}
+
+dl.tj dt {
+    margin-top: 0.5ex;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+h1.title {
+    text-align: center;
+    font-size: 36pt;
+    font-weight: normal;
+    margin-bottom: 0pt;
+}
+
+h2.subtitle {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 18pt;
+    font-weight: normal;
+    font-style: italic;
+    margin-top: 0pt;
+}
+
+h3.author {
+    font-size: larger;
+    text-align: center;
+    font-weight: normal;
+}
+
+h3.progname {
+    font-size: 200%;
+    font-family: monospace;
+    text-align: center;
+    border: 1px solid black;
+}
+
+p {
+    text-align: justify;
+}
+
+p.abstract {
+    margin-left: 2em;
+    margin-right: 2em;
+    font-style: italic;
+    font-size: larger;
+}
+
+p.hang {
+    margin-left: 3em;
+    text-indent: -3em;
+    margin-top: 1ex;
+}
+
+pre.c {
+    margin-left: 2em;
+    font-weight: bold;
+}
+
+pre.c i {
+    font-family: serif;
+    font-style: italic;
+    font-weight: normal;
+}
+
+span.a {    	    	/* Atlast logo */
+    font-variant: small-caps;
+    border-bottom: double black;
+}
+
+table.primitives td.c1 i {
+    font-style: italic;
+    font-family: serif;
+    font-weight: normal;
+    font-size: 80%;
+}
+
+table.benchmark {
+    color: inherit;
+    background-color: #E0E0E0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table.benchmark td, th {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+table.benchmark td.n {
+    text-align: right;
+}
+
+table.primitives {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table.primitives td {
+    vertical-align: top;
+}
+
+table.primitives td.c1 {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 180%;
+}
+
+table.primitives td.c1 i {
+    font-style: italic;
+    font-family: serif;
+    font-weight: normal;
+    font-size: 80%;
+}
+
+table.primitives td.c2 {
+   text-align: right;
+}
+
+table.primitives td.c5 {
+   text-align: justify;
+}
+
+table.primitives td.c6 {
+    font-family: monospace;
+    font-weight: bold;
+}
+
+tt {
+    font-weight: bold;
+}
+
+.ctr {
+    text-align: center;
+}
+
+.rgt {
+    text-align: right;
+}
+-->
+</style>
+</head>
+
+<body>
+
+<h1 class="title">ATLAST</h1>
+
+<h2 class="subtitle">Autodesk
+Threaded Language Application System Toolkit</h2>
+
+<h3 class="author">
+64-bit Edition
+</h3>
+
+<p class="abstract">
+Open, programmable products are superior to and
+displace even the best designed closed applications.  A threaded
+language, implemented in a single portable C file, allows virtually
+any program, existing or newly developed, to be made programmable,
+extensible, and open to user enhancement.
+</p>
+
+<h3 class="author">
+John Walker<br />
+March 9th, 1990
+</h3>
+
+<p>
+You'd think we'd have learned by now.  It was Autodesk's
+strategy for AutoCAD<sup>&reg;</sup>
+from inception that it should be an open, extensible system. 
+We waged a five-year uphill battle to bring such a heretical idea to
+eventual triumph.  Today, virtually every industry analyst agrees
+that AutoCAD's open architecture was, more than any other single
+aspect of its design, responsible for its success and the success
+that Autodesk has experienced.
+</p>
+
+<p>
+And yet, even today, we write program after program that is
+closed&mdash;that its users cannot program&mdash;that admits of no
+extensions without our adding to its source code.  If we believe
+intellectually, from a sound understanding of the economic incentives
+in the marketplace, that open systems are better, and have confirmed
+this supposition with the success of AutoCAD, then the only question
+that remains is <i>why?</i>  Why not make every program an open
+program?</p>
+
+<p>
+Well, because it's <i>hard</i>!  Writing a closed program has
+traditionally been much less work at every stage of the development
+cycle: easier to design, less code to write, simpler documentation,
+and far fewer considerations in the test phase.  In addition, closed
+products are believed to be less demanding of support, although I'll
+argue later that this assumption may be incorrect.</p>
+
+<h3>The painful path to programmability</h3>
+
+<p>
+Most programs start out as nonprogrammable, closed applications, then
+painfully claw their way to programmability through the introduction
+of a limited script or macro facility, succeeded by an increasingly
+comprehensive interpretive macro language which grows like topsy and
+without a coherent design as user demands upon it grow.  Finally,
+perhaps, the program is outfitted with bindings to existing languages
+such as C.</p>
+
+<p>
+An alternative to this is adopting a standard language as the macro
+language for a product.  After our initial foray into the awful menu
+macro language that still burdens us, AutoCAD took this approach,
+integrating David Betz&rsquo; XLISP, a simple Lisp interpreter which
+was subsequently extended by Autodesk to add floating point, many
+additional Common Lisp functions, and, eventually, access to the
+AutoCAD database.</p>
+
+<p>
+This approach has many attractions.  First, choosing a standard
+language allows users to avail themselves of existing books and
+training resources to learn its basics.  The developer of a dedicated
+macro language must create all this material from scratch.  Second,
+an interpretive language, where all programs are represented in ASCII
+code, is inherently portable across computers and operating systems. 
+Once the interpreter is gotten to work on a new system, all the
+programs it supports are pretty much guaranteed to work.  Third, most
+existing languages have evolved to the point that most of the rough
+edges have been taken off their design.  Extending an existing
+language along the lines laid down by its designers is much less
+likely to result in an incomprehensible disaster than growing an
+ad-hoc macro language feature by neat-o feature.</p>
+
+<p>
+Unfortunately, interpreters are <i>slow</i>, <i>slow</i>, <i>slow</i>.
+ A simple calculation of the number of instructions of overhead per
+instruction that furthers the execution of the program quickly
+demonstrates that no interpreter is suitable for serious computation.
+ As long as the interpreter is deployed in the role of a macro
+language, this may not be a substantial consideration.  Most early
+AutoLISP&reg;
+programs, for example, spent most of their time submitting commands
+to AutoCAD with the <tt>(command)</tt>
+function.  The execution time of the program was overwhelmingly
+dominated by the time AutoCAD took to perform the commands, not the
+time AutoLISP spent constructing and submitting them.  However, as
+soon as applications tried to do substantial computation, for example
+the parametric object calculations in AutoCAD AEC, the overhead of
+AutoLISP became a crushing burden, verging on intolerable.  The
+obvious alternative was to provide a compiled language.  But that,
+too, has its problems.</p>
+
+<h2>Introducing <span class="a">Atlast</span></h2>
+
+<p>
+<span class="a">Atlast</span>&trade; is a toolkit that makes
+applications programmable.  Deliberately designed to be easy to
+integrate both into existing programs and newly-developed ones,
+<span class="a">Atlast</span> provides any program that incorporates it most
+of the benefits of programmability with very little explicit effort on
+the part of the developer.  Indeed, once you begin to &ldquo;think
+<span class="a">Atlast</span>&rdquo; as part of the design cycle,
+you'll probably find that the way you design and build programs
+changes substantially.  I'm coming to think of
+<span class="a">Atlast</span> as the &ldquo;monster that feeds on
+programs,&rdquo; because including it in a program tends to shrink the
+amount of special-purpose code that would otherwise have to be written
+while resulting in finished applications that are open, extensible,
+and more easily adapted to other operating environments such as the
+event driven paradigm.</p>
+
+<p>
+The idea of a portable toolkit, integrated into a wide variety of
+products, all of which thereby share a common programming language
+seems obvious once you consider its advantages.  It's surprising that
+such packages aren't commonplace in the industry.  In fact, the only
+true antecedent to <span class="a">Atlast</span> I've encountered in
+my whole twisted path through this industry was the universal macro
+package developed in the mid 1970s by Kern Sibbald and Ben Cranston
+at the University of Maryland.  That package, implemented on Univac
+mainframes, provided a common macro language shared by a wide variety
+of University of Maryland utilities, including a text editor,
+debugger, file dumper, and typesetting language.  While <span
+class="a">Atlast</span> is entirely different in structure and
+operation from the Maryland package, which was an interpretive string
+language, the concept of a cross-product macro language and
+appreciation of the benefits to be had from such a package are
+directly traceable to those roots.</p>
+
+<p>
+So what <i>is</i> <span class="a">Atlast</span>?  Well&hellip;it's
+FORTH, more or less.  Now I'm well aware that the mere mention of
+FORTH stimulates a violent immune reaction in many people second,
+perhaps, only to that induced by the utterance of the dreaded word
+&ldquo;LISP.&rdquo;  Indeed, more that 12 years after my first
+serious encounter with FORTH, I am only now coming to feel that I am
+truly beginning to &ldquo;get it&rdquo;&mdash;to understand what it's
+really about, what its true strengths (and weaknesses) are, and to
+what problems it can offer uniquely effective solutions.  PostScript
+had a lot to do with my coming to re-examine FORTH, as did my failed
+attempt in early 1988 to separate AutoCAD's user interface from the
+geometry engine.  That project, <i>The Leto Protocol</i>, ended with
+my concluding that to succeed: to create an interface that would not
+grow to unbounded size, bewildering complexity, and glacial
+performance, it would be necessary to embed programmability within
+the core&mdash;to provide a set of primitives that could be composed,
+by the user interface module, into higher-level operators that could
+be invoked across the link between the two components.  This
+programmability would, of course, have to be in a portable form and
+not involve linking user code into the AutoCAD core.</p>
+
+<p>
+In looking for parallels to the problem I faced, PostScript seemed
+similarly motivated and reasonably effective in accomplishing its
+goals.  (One can certainly attack PostScript on performance, although
+I suspect its performance problems stem more from the underlying
+execution speed of the graphics primitives and the inefficient ASCII
+representation of input than any inherent aspect of the language.)
+Certainly PostScript blew away its competitors, such as Impress and
+DDL, almost without taking notice of them.  Further, it seemed
+apparent that PostScript's success was another example in the long
+list of open, programmable products that triumphed over &ldquo;more
+comprehensive&rdquo; but non-extensible ones.</p>
+
+<p>
+Looking at PostScript inevitably brings one back to the language that
+inspired it, FORTH.  Although FORTH has a reputation for obscurity
+and seems to attract an unusually high percentage of flaky adherents,
+it has many attributes that recommend it as a candidate for a
+portable tool to make any application programmable.</p>
+
+<p>
+<b>It is small.</b>  A minimal implementation of
+FORTH is a tiny thing indeed, since most of the language can be
+defined in itself, using only a small number of fundamental
+primitives.  Even a rich implementation, with extensions such as
+floating point and mathematical functions, strings, file I/O,
+compiler writing facilities, user-defined objects, arrays, debugging
+tools, and runtime instrumentation, is still on the order of one
+fifth the number of source lines of a Lisp interpreter with far fewer
+built-in functions, and occupies less than of 70% the object code
+size.  Runtime data memory requirements are a tiny fraction (often
+one or two percent) of those required by Lisp, and frequently
+substantially less that compiled languages such as C.  It's kind of
+startling to discover that an entire interpretive and compiled
+language, including floating point, all the math functions of C, file
+I/O, strings, etc., could be built, in the original 32-bit version,
+into a MS-DOS executable of 50964 bytes.</p>
+
+<p>
+<b>It is fast.</b>  Because it is a threaded
+language, execution of programs consists not of source level
+interpretation but simple memory loads and indirect jumps.  Even for
+compute-bound code, the speed penalty compared to true compilers is
+often in the range of 5 to 8.  While this may seem a serious price to
+pay, bear in mind that tokenising Lisp interpreters often exhibit
+speed penalties of between 60 and 70 to 1 on similar code, and
+source-level interpreters, such as the macro languages found in many
+application programs, are often much, much worse than that.  In most
+programs, the execution speed of FORTH and compiled code will be
+essentially identical, particularly when FORTH is used largely in the
+role of a macro language, calling primitives within an application
+coded in a compiled language.</p>
+
+<p>
+<b>It is portable.</b>  If the implementation
+rigidly specifies the memory architecture and data types used (and
+this can be done with essentially no sacrifice in speed), FORTH
+programs can be made 100% compatible among implementations.  Programs
+can be transferred as ASCII files, universally interchangeable across
+systems.  Application data types defined in FORTH, using its object
+creation facilities, automatically gain the portability of the
+underlying data types.</p>
+
+<p>
+<b>It is easy to extend.</b> Because the
+underlying architecture is very simple (unlike, for example, that of
+a Lisp interpreter), any competent C programmer with a minimum of
+indoctrination can begin adding C-coded primitives to a C-implemented
+FORTH within hours.  These C primitives will run at full speed, yet
+be able to be parameterised, placed in definitions, used in loops,
+etc., from any FORTH construct.  This leads to a different way of
+building applications.  Rather than programming the structure and
+primitives as a unified process, one builds the application-unique
+primitives that are needed, tests them interactively as they are
+built, then assembles the application with glue code written either
+in FORTH or C depending upon considerations of efficiency, security,
+and the extent to which one wishes to make the underlying primitives
+visible to and accessible by the user.  Unlike conventional program
+development processes, these considerations are not yes-or-no
+decisions but, for the most part, continua along which the product
+may be positioned at the point desired and subsequently adjusted
+based upon market feedback.</p>
+
+<p>
+<b>It is interactive.</b> While most portions of
+a FORTH program are compiled into a form equally compact and
+comparable in execution speed to machine code, direct user
+interaction can always be furnished simply by providing a connection
+from the user's keyboard to the interpreter (or conversely, blocked
+by denying the user that access).  That such interactivity expedites
+program development compared to the normal edit, compile, link, debug
+cycle is well known.  That FORTH can provide it without sacrificing
+execution speed is one of its major attractions.</p>
+
+<p>
+<b>It supports multiple operating paradigms.</b> 
+Once the technique of encapsulating the functionality of a product in
+primitives accessible from the FORTH environment is mastered, it is
+possible to build programs in which the core facilities (for example,
+database access, geometric calculations, graphical display of
+results, calculating mass properties) can be composed into sequences
+that can be invoked from a program, called interactively from a
+command line, triggered by a menu selection or pick of a button in a
+dialogue, or virtually any other form of interaction imaginable. 
+Further, since any stimulus that affects the program simply executes
+a FORTH word, and such words can be easily redefined with a small
+amount of FORTH text, any of these operating modes can be rendered
+programmable by the implementor, third party developer, or user, at
+the discretion of the designer.</p>
+
+<p>
+<b>It is surprisingly modern.</b>  Although FORTH
+appears to be an artifact of the bygone days of 64K computers and
+teletype machines, many of its concepts, viewed through contemporary
+eyes, are remarkably up to date.  For example, few languages share
+its ability to define new fundamental data types, along with methods
+that operate upon them.  The multiple dictionary facility of FORTH
+permits one to create objects that inherit, by default, properties of
+their parents, and to implement such structures in an efficient
+manner.</p>
+
+<h3><span class="a">Atlast</span> and FORTH</h3>
+
+<p>
+All of these advantages do not erase some substantial shortcomings of
+FORTH, particularly in the modern programming environment.  In
+defining <span class="a">Atlast</span>, I have attempted to conform to
+FORTH wherever possible, without compromising my overall goal of
+creating a system that would allow a developer to factor out the
+programmability from an application and hand it to a standard module
+to manage, precisely as C programmers delegate I/O and mathematical
+function evaluation to library routines provided for those
+purposes.</p>
+
+<p>
+<span class="a">Atlast</span> is based on the FORTH-83 standard and
+incorporates many of the optional extensions and supplementary words
+defined in that standard. Once the basic differences between FORTH and
+<span class="a">Atlast</span> have been mastered, one can use a FORTH
+reference manual for most user-level <span class="a">Atlast</span>
+programming tasks.  The major differences between FORTH-83 and
+<span class="a">Atlast</span> are as follows.</p>
+
+<p>
+<b>Integers are 64 bits.</b>  To bring forth another language burdened
+with 16 or 32 bit integers today is, to my mind, unthinkable.  We
+are rapidly entering an era where the vast majority of C language
+environments agree that the <tt>int</tt> type is 64 bits, and
+applications may be expected to rapidly conform to this standard. 
+Consequently, in <span class="a">Atlast</span>, all integers are 64
+bits and no <tt>short</tt> data type is provided.
+</p>
+
+<p>
+<b>Identifiers are arbitrary length.</b>  In <span
+class="a">Atlast</span>, you need not struggle with the tradeoff
+between memory efficiency and uniqueness of identifiers that plagues
+the FORTH programmer.  Identifiers are limited in length only to the
+size of the built-in token assembly buffer, which defaults to 128
+characters, and all characters are significant.  Again, this change
+brings <span class="a">Atlast</span> more closely into conformance
+with contemporary language designs.  To implement this change, symbol
+names were moved from the heap into dynamically allocated buffers,
+taking advantage of the underlying C runtime environment.  This makes
+the task of adjusting heap size easier (and changes some of the arcana
+of programs that fiddle with the low-level structure of the system,
+but everything you could do in FORTH, you can do in
+<span class="a">Atlast</span>, albeit in a slightly different way).</p>
+
+<p>
+<b>Floating point is supported.</b>  Floating point constants,
+variables, operators, scanning and formatting facilities, and a rich
+set of mathematical functions are provided as primitives (which can be
+turned off at compile time, if not needed).  Compatibly with C, the
+default floating point type is 64 bit C <tt>double</tt> precision
+numbers.  The only assumption made by <span class="a">Atlast</span>
+about floating point format is that a floating point number is
+the same size as an integer.  The rational number facilities of FORTH are
+not provided in <span class="a">Atlast</span>.</p>
+
+<p>
+<b>Strings are supported.</b>  Strings are supported at a much higher
+level in <span class="a">Atlast</span> than in FORTH.  String literals
+are provided in a general and explicit manner using the C syntax for
+escaping special characters.  A rich set of string processing
+functions which closely follow those of C are provided
+(<tt>STRCPY</tt>, <tt>STRCAT</tt>, <tt>STRLEN</tt>&hellip;). A
+mechanism of cyclically allocated temporary string buffers provides
+more flexible manipulation of strings in interactive input.  Strings
+continue to follow the pointer and buffer model used by both C and
+FORTH.  String-intensive programs should run at about the same speed
+as their equivalents in C or FORTH.</p>
+
+<p>
+<b>Debugging facilities are provided.</b>  <span
+class="a">Atlast</span> can be configured at compile time with as much
+or as little error checking and debugging support as is appropriate
+for the application in which it is being integrated and the
+development status of that product.  During development and test, one
+can configure <span class="a">Atlast</span> with an optional
+<tt>TRACE</tt> that follows program execution primitive by primitive,
+a <tt>WALKBACK</tt> that prints the active word stack when an error is
+detected, precise overflow and underflow checking of both the
+evaluation and return stacks, and close to bulletproof pointer
+checking that catches attempts to load or store outside the designated
+heap area.  Although sufficiently crafty programs can still crash
+<span class="a">Atlast</span>, errors that slip past the checking and
+wreak havoc are extremely rare, even in unprotected environments such
+as MS-DOS.  This, combined with the fundamental interactivity of
+<span class="a">Atlast</span>, makes for a friendly debugging environment. 
+All the runtime error checking can be disabled to reduce memory and
+execution time overhead, when and where appropriate.</p>
+
+<p>
+<b>File I/O follows C and Unix conventions.</b>  FORTH was developed
+before the age of standard operating systems; in its early days, it
+<i>was</i> the operating system of many of the minicomputers which ran
+it.  Now that the Unix file system interface has become a
+<i lang="la" xml:lang="la">de facto</i> industry standard, <span
+class="a">Atlast</span> conforms to that model of file system
+operation.  <tt>FILE</tt> variables correspond to C language file
+descriptors, and a familiar set of primitives such as <tt>FOPEN</tt>,
+<tt>FCLOSE</tt>, <tt>FREAD</tt>, <tt>FSEEK</tt>, etc., are used in the
+same manner as in C.  Line-level I/O is provided as well, offering
+AutoCAD-compatible automatic recognition of ASCII files written with
+any of the current end of line conventions.</p>
+
+<p>
+<b>Extensive support for embedding is provided.</b> Unlike FORTH,
+<span class="a">Atlast</span> is intended to be invisibly embedded
+within application programs.  Other than providing a common framework
+for programmability and extension, the application continues to
+&ldquo;look like&rdquo; itself, not like <span class="a">Atlast</span>
+or FORTH.  Thus, <span class="a">Atlast</span> is not &ldquo;in
+control&rdquo; in the sense that the main loop of a FORTH system is;
+it is a slave, called by the application at appropriate times. 
+Accomplishing this required inverting the control structure from that
+of a typical FORTH system and providing a comprehensive set of C
+callable linkages by which the application communicates with
+<span class="a">Atlast</span>.  In addition, primitives are provided which
+aid in tuning <span class="a">Atlast</span> to the precise needs of
+the host program.  The developer can monitor memory usage, note which
+primitives are used and which are not, and configure a custom version
+of <span class="a">Atlast</span> ideally suited to the needs and
+environment of the host program.</p>
+
+<h3>A note on what follows</h3>
+
+<p>
+In order to illustrate <span class="a">Atlast</span>, the balance of
+this paper employs numerous sample programs and fragments of
+<span class="a">Atlast</span> code.  A reader with a basic understanding of
+FORTH should, along with the definitions of the
+<span class="a">Atlast</span> primitives given at the end of the paper, be
+able to figure out what is going on in the examples.  If you've never
+encountered FORTH before, the examples may seem little more than
+gibberish.  Don't worry&mdash;once you get the hang of it, or consult
+one of the many excellent FORTH books available (I recommend
+<cite><a href="http://www.amazon.com/exec/obidos/ASIN/0893036609/fourmilabwwwfour">Mastering
+Forth</a></cite>, by Anderson and Tracy, New York: Brady
+Books/Prentice-Hall, 1984), all will become clear.</p>
+
+<p>
+Until then, don't be put off by the examples.  Just skim over them
+<i>as if</i> you understood them.  You'll still pick up the flavour of
+the package, how it integrates with applications, and what you can do
+with it.  I'd like to be able to leave my brain and fingers running
+overnight and find a complete <span class="a">Atlast</span> reference
+manual that could stand by itself sitting on my machine the next day. 
+Alas, I lack overnight batch capability and have no opportunity to
+undertake such a task in prime time at present.  I decided to supply
+the documentation in this oddly incomplete form to get the essentials
+across to those who can understand it rather than defer the entire
+effort until I can complete a hundred pages or so of documentation
+that largely duplicates a FORTH reference manual.</p>
+
+<h2>Interactive <span class="a">Atlast</span></h2>
+
+<p>
+Although <span class="a">Atlast</span> is intended to be embedded in
+application programs, for learning the language, experimenting with
+small programs, and using it as a desk calculator, it's handy to have
+an interactive stand-alone version.  The <span class="a">Atlast</span>
+source distribution includes a main program, <tt>atlmain.c</tt>, that
+can be linked with <span class="a">Atlast</span> to provide such a
+utility.  The executable, called <tt>atlast</tt>, is built with all
+error checking enabled to aid in program development.</p>
+
+<p>
+To experiment with <span class="a">Atlast</span>, execute the
+interactive program with:</p>
+
+<pre class="c">
+atlast
+</pre>
+
+<p>
+You'll be prompted with:</p>
+
+<pre class="c">
+-&gt;
+</pre>
+
+<p>
+as long as <span class="a">Atlast</span> is in the interpretive
+state.  For example, you might load <span class="a">Atlast</span> and
+experiment with various rational approximations of &pi;.</p>
+
+<pre class="c">
+% atlast
+-> 22.0 7.0 f/ f.
+3.14286 -> 377.0 120.0 f/ f.
+3.14167 -> ^D
+%
+</pre>
+
+<p>
+Note that <span class="a">Atlast</span> does not explicitly return the
+carriage after output; use the <tt>CR</tt> primitive if you wish this
+done.  Rather than printing each number and comparing it manually
+against &pi;, we can define a <i>constant</i> with the value of &pi;
+and a new <i>word</i> (or function) that compares a value against it
+and prints the error residual.  Here's how we might do that:</p>
+
+<pre class="c">
+% atlast
+-> 1.0 atan 4.0 f* constant pi
+-> : pierr
+:>   pi f- fabs f. cr
+:> ;
+-> 3.0 pierr
+.141593
+-> 22.0 7.0 f/ pierr
+0.00126449
+-> 355.0 113.0 f/ pierr
+2.66764e-07
+-> ^D
+%
+</pre>
+
+<p>
+We can also load programs from files into Interactive
+<span class="a">Atlast</span>.  Suppose we want to investigate the behaviour
+of Leibniz&rsquo; famous 1673 series that converges (achingly
+slowly) to &pi; The series is:</p>
+
+<p>
+&pi;/4 = 1 &minus; 1/3 + 1/5 &minus; 1/7 + 1/9 &minus; &hellip;
+</p>
+
+<p>
+We can create a file, using the text editor of our choice, containing
+the following:</p>
+
+<pre class="c">
+\   Series approximations of Pi
+
+\   Leibniz: pi/4 = 1 - 1/3 + 1/5 - 1/7 ...
+
+: leibniz      ( n -- fpi )
+    1.0 1.0
+    2 pick 1 do
+        2.0 f+      	    	\ denom += 2
+        dup
+        i 1 and if
+            fnegate
+        then
+        1.0 swap f/
+        rot f+
+        swap
+    loop
+    rot
+    2drop
+    4.0 f*
+;
+
+\   Reference value of Pi
+
+1.0 atan 4.0 f* constant pi
+
+\ Calculate and print error
+
+: pierr
+    pi f- fabs f. cr
+;
+</pre>
+
+<p>
+If this seems like gibberish, don't worry!  Remember the first time
+you looked at a Lisp or C program.  If you want to decode some of the
+structure of this program before learning the language, refer to the
+definitions of <span class="a">Atlast</span> primitives at the back of
+this manual, remember that <span class="a">Atlast</span> is a reverse
+Polish stack language, and note that &ldquo;<tt>\</tt>&rdquo; is a
+comment delimiter that causes the rest of the line to be ignored and
+that &ldquo;<tt>(</tt>&rdquo; is a comment delimiter that ignores all
+text until the next &ldquo;<tt>)</tt>&rdquo;.</p>
+
+<p>
+If this file is saved as <tt>leibniz.atl</tt>, we can load the program
+into Interactive <span class="a">Atlast</span> with the command:</p>
+
+<pre class="c">
+atlast -ileibniz.atl
+</pre>
+
+<p>
+<span class="a">Atlast</span> will compile the program in the file,
+report any errors, and if no errors are found enter the interactive
+interpretation mode.  The definition of <tt>leibniz</tt> performs the
+number of iterations specified by the number on the top of the stack
+and leaves the resulting series approximation to &pi; on the top of
+the stack.</p>
+
+<p>
+We can play with this definition as follows:</p>
+
+<pre class="c">
+% atlast -ileibniz.atl
+10 leibniz f.
+3.04184 -&gt; 100 leibniz f.
+3.13159 -&gt; 1000 leibniz f.
+3.14059 -&gt; 10000 leibniz f.
+3.14149 -&gt;
+</pre>
+
+<p>
+Well, we can see it's converging, but not very fast.  Since we can
+define new compiled words on the fly, let's improvise a definition
+that will print the value and its error for increments of 10000
+iterations, then run that program.  Continuing our session above:</p>
+
+<pre class="c">
+-&gt; : itest 0 do i 1+ 10000 * dup .
+:&gt; leibniz dup f. pierr  loop ;
+-&gt; 5 itest
+10000 3.14149 0.0001 
+20000 3.14154 5e-05 
+30000 3.14156 3.33333e-05 
+40000 3.14157 2.5e-05 
+50000 3.14157 2e-05 
+-&gt; ^D
+%
+</pre>
+
+<p>
+As you can see (even if you don't understand), we've mixed compiled
+code, interpreted code, and on-the fly definition of new compiled
+functions in a seamless manner.</p>
+
+<p>
+You can also run an <span class="a">Atlast</span> program in batch
+mode simply by specifying its name on the <span
+class="a">Atlast</span> command line.  If, for example, you added the
+lines:</p>
+
+<pre class="c">
+\   Run iteration vs. error report
+
+: itest
+    0 do 
+        i 1+ 10000 * dup . leibniz
+        dup f. pierr
+    loop
+;
+
+10 itest
+</pre>
+
+<p>
+to the end of the <tt>leibniz.atl</tt> file, creating a new file
+called <tt>leibbat.atl</tt>, you could run the program in batch mode
+as follows:</p>
+
+<pre class="c">
+% atlast leibbat 
+10000 3.14149 0.0001 
+20000 3.14154 5e-05 
+30000 3.14156 3.33333e-05 
+40000 3.14157 2.5e-05 
+50000 3.14157 2e-05 
+60000 3.14158 1.66667e-05 
+70000 3.14158 1.42857e-05 
+80000 3.14158 1.25e-05 
+90000 3.14158 1.11111e-05 
+100000 3.14158 1e-05 
+%
+</pre>
+
+<p>
+(By the way, as is apparent, this is clearly no way to compute &pi;!
+Try this, instead, if you're serious about pumping &pi;.)</p>
+
+<pre class="c">
+\   Tamura-Kanada fast Pi algorithm
+
+variable a
+variable b
+variable c
+variable y
+
+: tamura-kanada ( n -- fpi )
+    1.0 a !
+    1.0 2.0 sqrt f/ b !
+    0.25 c !
+    1.0
+    swap 1 do
+        a @ dup y !
+        b @ f+ 2.0 f/ a !
+        b @ y @ f* sqrt b !
+        c @ over a @ y @ f-
+        dup f* f* f- c ! 2.0 f*
+    loop
+    drop
+    a @ b @ f+ dup f* 4.0 c @ f* f/
+;
+</pre>
+
+<h2>Debugging</h2>
+
+<p>
+As befits an interactive language, <span class="a">Atlast</span>
+provides debugging support. You can trace through the execution of a
+program word by word by enabling the <tt>TRACE</tt> facility.  To turn
+tracing on, enter the sequence:</p>
+
+<pre class="c">
+1 trace
+</pre>
+
+<p>
+If you've loaded a definition of the factorial function as follows:</p>
+
+<pre class="c">
+: factorial
+        dup 0= if
+           drop 1
+        else
+           dup 1- factorial *
+        then
+;
+</pre>
+
+<p>
+and execute it under trace, you'll see output as follows:</p>
+
+<pre class="c">
+% atlast -ifactorial.atl
+-&gt; 1 trace
+-&gt; 3 factorial .
+
+Trace: FACTORIAL 
+Trace: DUP 
+Trace: 0= 
+Trace: ?BRANCH 
+Trace: DUP 
+Trace: 1- 
+Trace: FACTORIAL 
+Trace: DUP 
+Trace: 0= 
+Trace: ?BRANCH 
+Trace: DUP 
+Trace: 1- 
+Trace: FACTORIAL 
+Trace: DUP 
+Trace: 0= 
+Trace: ?BRANCH 
+Trace: DUP 
+Trace: 1- 
+Trace: FACTORIAL 
+Trace: DUP 
+Trace: 0= 
+Trace: ?BRANCH 
+Trace: DROP 
+Trace: (LIT) 1 
+Trace: BRANCH 
+Trace: EXIT 
+Trace: * 
+Trace: EXIT 
+Trace: * 
+Trace: EXIT 
+Trace: * 
+Trace: EXIT 
+Trace: . 6 -&gt; ^D
+%
+</pre>
+
+<p>
+You can turn off tracing with &ldquo;<tt>0
+trace</tt>&rdquo;.</p>
+
+<p>
+When an error occurs, a walkback is normally printed that lists the
+active words starting with the one in which the error occurred,
+proceeding through levels of nesting to the outermost, interpretive
+level.  If the <a href="#wback"><tt>WALKBACK</tt> package</a> is
+configured, the walkback is printed by default.  You can disable it
+with &ldquo;<tt>0 walkback</tt>&rdquo;.  Here is a sample error
+walkback report:</p>
+
+<pre class="c">
+% atlast -ileibniz.atl
+-&gt; leibniz
+Stack underflow.
+Walkback:
+   ROT
+   LEIBNIZ
+-&gt;
+</pre>
+
+<h2>Integrating <span class="a">Atlast</span></h2>
+
+<p>
+Unlike most languages, <span class="a">Atlast</span> is not structured
+as a main program; it is a subroutine.  You can invoke it when and
+where you like within your application, providing as much or as little
+programmability as is appropriate.  Before we get into the details of
+the interface between an application and
+<span class="a">Atlast</span>, it's worth showing, by example, just how
+simple a program can be that accesses all the facilities of
+<span class="a">Atlast</span> mentioned so far.  The following main program,
+linked with the <span class="a">Atlast</span> object module,
+constitutes a fully-functional interactive
+<span class="a">Atlast</span> interpreter.  It lacks the refinements of
+Interactive <span class="a">Atlast</span> such as console break
+processing, batch mode, loading definition files, prompting with
+compilation state, and the like, but any program that Interactive
+<span class="a">Atlast</span> will run can be run by this program, if
+submitted to it by input redirection.</p>
+
+<pre class="c">
+#include &lt;stdio.h&gt;
+#include "atlast.h"
+int main()
+{
+    char t[132];
+    atl_init();
+    while (printf("-&gt; "),
+           fgets(t, 132, stdin) != NULL)
+        atl_eval(t);
+    return 0;
+}
+</pre>
+
+<h3><a name="gconf" class="i">Configuring <tt>atlast.c</tt></a></h3>
+
+<p>
+The first step in integrating <span class="a">Atlast</span> is
+building a suitable version of <tt>atlast.c</tt> that can be linked
+with your application.  In order to do this, you must choose the modes
+with which you wish <span class="a">Atlast</span> built.  These modes
+are normally specified by compile-time definitions supplied on the C
+compiler call line.  Unless you request individual configuration of
+<span class="a">Atlast</span> subpackages, a fully functional version
+of <span class="a">Atlast</span> will be built.  In that case, you
+need only be concerned with the settings of the following compile-time
+variables.</p>
+
+<dl class="tj">
+<dt>ALIGNMENT</dt>
+<dd>If double precision floating point numbers must be aligned on 8
+byte boundaries in memory, define ALIGNMENT. If not defined, <span
+class="a">Atlast</span> assumes that 4 byte alignment is adequate for
+these numbers.  With the 64-bit architecture of ATLAST 2.x, there
+are few circumstances where ALIGNMENT should be required.</dd>
+
+<dt>COPYRIGHT</dt>
+<dd>If you require a statement of the the public domain status of
+<span class="a">Atlast</span> to be embedded into the binary
+program, define this variable.  Otherwise, leave it undefined and
+save a few bytes.
+</dd>
+
+<dt>EXPORT</dt>
+<dd>If you are simply invoking <span class="a">Atlast</span> as a
+macro engine and do not require access to its internal data
+structures, leave EXPORT undefined.  If your program adds
+application-specific primitives to <span class="a">Atlast</span> (as
+most do), define EXPORT and include the file <tt>atldef.h</tt> in all
+modules that require that access.  The stack, return stack, and heap
+pointers will be made external, names of internal symbols within
+<span class="a">Atlast</span> will be redefined to special names beginning
+with <tt>atl_</tt> to avoid conflicts with your program, and
+additional interface code is enabled to provide your primitives full
+access to the <span class="a">Atlast</span> runtime environment. </dd>
+
+<dt>MEMSTAT</dt>
+<dd>If you want to enable the runtime memory usage monitor, accessible
+from the MEMSTAT primitive or the <tt>atl_memstat()</tt> function
+call, define MEMSTAT.</dd>
+
+<dt>NOMEMCHECK</dt>
+<dd>To disable all runtime stack, heap, and pointer checking, define
+NOMEMCHECK. This will yield a dramatic increase in execution speed,
+but should be enabled only in closed applications after you're sure
+all the bugs are securely in hiding.  When built with NOMEMCHECK, an
+<span class="a">Atlast</span> program is no more secure than a
+pointer-mad C program.</dd>
+
+<dt>READONLYSTRINGS</dt>
+<dd>When the <tt><a href="#wordsused">WORDSUSED</a></tt> package is
+enabled, <span class="a">Atlast</span> keeps track of which
+primitive and user-defined words are used in a program,
+allowing you to determine which packages are required and
+whether your tests have invoked all of the words you have defined.
+This is done by setting a flag in the word definition which,
+for built-in primitive words, involves modifying a C constant
+string.  If your C language implementation does not permit this,
+define <tt>READONLYSTRINGS</tt>, which will copy the predefined
+words to a dynamically allocated buffer which may be modified.
+Note that this is done only if the <tt>WORDSUSED</tt> package
+is enabled.</dd>
+</dl>
+
+<p>
+<span
+class="a">Atlast</span> treats all integers as 64 bits and assumes
+that data pointers are the same length.</p>
+
+<h3>Initialising: <tt>atl_init</tt></h3>
+
+<p>
+Before your application makes any other calls to <span
+class="a">Atlast</span>, you must call <tt>atl_init</tt> to initialise
+its dynamic storage and create the data structures used to evaluate
+<span class="a">Atlast</span> expressions.</p>
+
+<p>
+To initialise <span class="a">Atlast</span> with the default memory
+configuration, just call:</p>
+
+<pre class="c">
+atl_init();
+</pre>
+
+<p><a name="memall"></a>
+The stack, return stack, heap, and initial dictionary are created and
+<span class="a">Atlast</span> is prepared for execution.  You can
+adjust the size of the memory allocated by
+<span class="a">Atlast</span> by setting the following variables (defined in
+<tt>atlast.h</tt>) before calling <tt>atl_init</tt>.</p>
+
+<dl class="tj">
+<dt>atl_stklen</dt>
+<dd>Evaluation
+(data) stack length.  Expressed as a number of 8 byte stack items.
+Default 100. 
+</dd>
+
+<dt>atl_rstklen</dt>
+<dd>Return
+stack length.  Expressed as a number of 8 byte return stack pointer
+items.  Default 100. 
+</dd>
+
+<dt>atl_heaplen</dt>
+<dd>Heap
+length.  Specified as a number of 8 byte heap items.  Default 2000. 
+</dd>
+
+<dt>atl_ltempstr</dt>
+<dd>Temporary
+string length.  Gives the length of the buffers used to hold
+temporary strings entered in interpretive mode and created by certain
+primitives.  Default 256. 
+</dd>
+
+<dt>atl_ntempstr</dt>
+<dd>Number of
+temporary strings.  Specifies the number of temporary strings. 
+Temporary strings are used in rotation; if more than <tt>atl_ntempstr</tt>
+are used without storing out the oldest result, it will be
+overwritten.  Default 4.
+</dd>
+</dl>
+
+<p>
+Applications can allow <span class="a">Atlast</span> programs they
+load to override default memory allocation specifications with
+<i><a href="#prologue">prologue statements</a></i>.  Deeply embedded
+applications, such as those programmed into ROMs, may wish to assign
+the <span class="a">Atlast</span> dynamic storage areas to predefined
+areas of memory instead of requesting them with <tt>malloc()</tt>.  If
+the base address pointer of an area is set nonzero before
+<tt>atl_init</tt> is called, the address specified will be used for
+that region; no buffer will be allocated.  If you take advantage of
+this facility, please read the code for <tt>atl_init()</tt> in
+<tt>atlast.c</tt> carefully and make sure the storage you supply is as
+long as the various length cells specify.  Note in particular that the
+system state word, temporary string buffers, and heap are consolidated
+into one contiguous area of memory.</p>
+
+<h3 id="atleval">Evaluating: <tt>atl_eval</tt></h3>
+
+<p>
+To evaluate a string containing <span class="a">Atlast</span> program
+text, call:</p>
+
+<pre class="c">
+<i>stat</i> = atl_eval(<i>string</i>);
+</pre>
+
+<p>
+where <i>string</i> is a string containing the text to be evaluated
+and <i>stat</i> is an integer giving the status of the evaluation. 
+Mnemonics for evaluation status codes are defined in <tt>atlast.h</tt>,
+and have the following meanings:</p>
+
+<dl class="tj">
+<dt>ATL_SNORM</dt> <dd>No error</dd>
+<dt>ATL_STACKOVER</dt> <dd>Stack overflow</dd>
+<dt>ATL_STACKUNDER</dt> <dd>Stack underflow</dd>
+<dt>ATL_RSTACKOVER</dt> <dd>Return stack overflow</dd>
+<dt>ATL_RSTACKUNDER</dt> <dd>Return stack underflow</dd>
+<dt>ATL_HEAPOVER</dt> <dd>Heap overflow</dd>
+<dt>ATL_BADPOINTER</dt> <dd>Bad heap pointer</dd>
+<dt>ATL_UNDEFINED</dt> <dd>Undefined word</dd>
+<dt>ATL_FORGETPROT</dt> <dd>Attempt to <tt>FORGET</tt> protected symbol</dd>
+<dt>ATL_NOTINDEF</dt> <dd>Compiler word outside definition </dd>
+<dt>ATL_RUNSTRING</dt> <dd>Runaway string</dd>
+<dt>ATL_RUNCOMM</dt> <dd>Runaway comment in file</dd>
+<dt>ATL_BREAK</dt> <dd>Asynchronous break signal received</dd>
+<dt>ATL_DIVZERO</dt> <dd>Attempt to divide by zero</dd>
+</dl>
+
+<p>
+In addition to these status codes, a program that calls
+<tt>atl_eval</tt> may determine the current state of <span
+class="a">Atlast</span> by examining external variables.  If a
+multi-line comment awaiting termination with a
+&ldquo;<tt>)</tt>&rdquo; is active, <tt>atl_comment</tt> will be
+nonzero.  If the definition of a word (colon definition) is currently
+pending, the variable <tt>state</tt> (accessible only if
+<tt>EXPORT</tt> is defined and <tt>atldef.h</tt> is included) will be
+nonzero.</p>
+
+<h3>Loading files: <tt>atl_load</tt></h3>
+
+<p>
+To load an entire file containing <span class="a">Atlast</span>
+program text, call:</p>
+
+<pre class="c">
+<i>stat</i> = atl_load(<i>file</i>);
+</pre>
+
+<p>
+where <i>file</i> is a C file descriptor (type <tt>FILE *</tt>)
+designating the file, currently open for input and positioned before
+the first byte of the <span class="a">Atlast</span> program to be
+loaded.  The program is read, and <i>stat</i> is the status resulting
+from loading and executing the <span class="a">Atlast</span> program
+in that file.  The status codes are the same as those given above for
+the <tt>atl_eval</tt> function.  The <tt>atl_load</tt> function reads
+text files in any of the end of line conventions recognised by
+AutoCAD; ASCII files in any of these formats may be loaded by any
+implementation of <span class="a">Atlast</span>.  If the host system
+requires binary files to be identified at open time, files containing
+<span class="a">Atlast</span> programs to be loaded with
+<tt>atl_load</tt> should be opened in <i>binary</i> mode, even though
+they nominally contain ASCII text.  Binary mode permits correct
+interpretation of all the end of line delimiters accepted by
+AutoCAD.</p>
+
+<p>
+The <tt>atl_load</tt> function uses <tt>atl_mark</tt> to save the
+runtime status before loading the file.  If an error occurs, it
+attempts to restore the <i>status quo ante</i> by performing an
+<tt>atl_unwind</tt>.  If the file loaded included interpretive mode
+code that modified preexisting objects on the heap, those changes will
+not be reversed if an error occurs whilst loading the file.</p>
+
+<h3>Marking: <tt>atl_mark</tt></h3>
+
+<p>
+Applications may wish to undertake a series of
+<span class="a">Atlast</span> operations which might result in a runtime
+evaluation error.  In that event, the application will normally want
+to undo definitions made by the program that errored.  To mark one's
+place before embarking upon a potentially perilous
+<span class="a">Atlast</span> program, use:</p>
+
+<pre class="c">
+atl_statemark mk;
+atl_mark(&amp;mk);
+</pre>
+
+<p>
+The current position of the stack, return stack, heap, and dictionary
+are saved in the <tt>atl_statemark</tt> structure.  A subsequent
+<tt>atl_unwind</tt> call will roll each of those dynamic storage areas
+back to the position at the designated <tt>atl_mark</tt>.</p>
+
+<h3>Reversing changes: <tt>atl_unwind</tt></h3>
+
+<p>
+To roll back all changes to the stack, return stack, heap allocation,
+and dictionary to the state saved in an <tt>atl_statemark</tt>
+object with <tt>atl_mark</tt>,
+call:</p>
+
+<pre class="c">
+atl_statemark mk;
+atl_unwind(&amp;mk);
+</pre>
+
+<p>
+The allocation pointers for all the storage areas are reset to their
+positions at the time <tt>atl_mark</tt> was called, but changes to
+heap variables made by storing through pointers after the
+<tt>atl_mark</tt> are not reversed.</p>
+
+<h3>Asynchronous break: <tt>atl_break</tt></h3>
+
+<p>
+Interactive applications of <span class="a">Atlast</span> must allow
+the user to escape infinite loops and other accidentally initiated
+lengthy computations. If the system provides a facility for responding
+to user interrupt requests, <span class="a">Atlast</span> allows
+execution of programs under its control to be terminated through the
+<tt>atl_break</tt> mechanism.</p>
+
+<p>
+If <tt>BREAK</tt> is defined at compile time, the <tt>atl_break()</tt>
+function and support for asynchronous break is enabled.  When the
+application receives an asynchronous break, it should call
+<tt>atl_break()</tt> to notify the currently running
+<span class="a">Atlast</span> program of the break signal.  If no
+<span class="a">Atlast</span> program is running at the time of the signal,
+no harm is done. The application break routine should always call
+<tt>atl_break()</tt> rather than try to determine whether
+<span class="a">Atlast</span> is active.  If an
+<span class="a">Atlast</span> program was executing at the time of the break
+signal, the application that invoked it, whether by <tt>atl_eval</tt>,
+<tt>atl_load</tt>, or <tt>atl_exec</tt>, will be notified of the
+abnormal termination by the return of the <tt>ATL_BREAK</tt>
+status.</p>
+
+<p>
+The <tt>atl_break</tt> function simply sets a flag examined by the
+inner loop of the <span class="a">Atlast</span> evaluator; it does not
+actually terminate execution.  Consequently, it may safely be called
+at any time, even from hardware interrupt service routines.</p>
+
+<h3>Showing memory status: <tt>atl_memstat</tt></h3>
+
+<p>
+In the final stage of optimising an application incorporating
+<span class="a">Atlast</span> for shipment, one may wish to adjust the
+memory allocation parameters to eliminate wasted space while providing
+reasonable margins for user extensions after shipment.  To set the
+parameters wisely, one must know the baseline memory usage of the
+application.  If <tt>atlast.c</tt> is built with <tt>MEMSTAT</tt>
+defined, this can be obtained either by executing the <tt>MEMSTAT</tt>
+primitive within the <span class="a">Atlast</span> program or by
+calling the <tt>atl_memstat</tt> function at an opportune time within
+the application.  In either case, a memory usage report similar to the
+following example is written to the standard output stream.</p>
+
+<pre class="c">
+             Memory Usage Summary
+
+              Current  Maximum  Items   Percent
+Memory Area    usage    used  allocated in use 
+ Stack            0        9     100       0
+ Return stack     0        4     100       0
+ Heap           227      227    1000      22
+</pre>
+
+<div class="wbox">
+<b>Note:</b> to use any of the  following functions, you must compile
+<tt>atlast.c</tt> and the modules  that call them with <tt>EXPORT</tt>
+defined, and you must include the  header file <tt>atldef.h</tt> in
+files that call them.
+</div>
+
+<h3>Looking up words: <tt>atl_lookup</tt></h3>
+
+<p>
+Your application can look up words in the
+<span class="a">Atlast</span> dictionary, using the same search order
+as the interpreter would, with the call:</p>
+
+<pre class="c">
+dictword *<i>dw</i>
+char *<i>name</i>
+
+<i>dw</i> = atl_lookup(<i>name</i>);
+</pre>
+
+<p>
+Since <span class="a">Atlast</span> names are matched regardless of
+whether letters in them are upper or lower case, the <i>name</i> may
+contain any combination of upper and lower case letters.  If the word
+is defined, its dictionary entry is returned.  The <tt>dictword</tt>
+structure is defined in <tt>atldef.h</tt>. If the word is not defined,
+<tt>NULL</tt> is returned.  There may be multiple nested definitions
+of a word; if this is the case, only the most recent definition (the
+active definition) is returned.  There is no way, using
+<tt>atl_lookup</tt> alone, to locate hidden definitions.</p>
+
+<h3>Accessing a word's text: <tt>atl_body</tt></h3>
+
+<p>
+An <span class="a">Atlast</span> word definition consists of several
+components, including its name and the C-coded method that implements
+it.  Of most interest to applications that intercommunicate with
+<span class="a">Atlast</span> is the <i>body</i> of the word.  For a
+variable or constant, this is the storage that contains the word's
+value.  To obtain the body address of a dictionary item returned by
+<tt>atl_lookup</tt> or created by <tt>atl_vardef</tt> (see below), use
+<tt>atl_body</tt>. The call:</p>
+
+<pre class="c">
+dictword *<i>dw</i>;
+stackitem *<i>si</i>
+
+<i>si</i> = atl_body(<i>dw</i>);
+</pre>
+
+<p>
+places the body address of dictionary item <i>dw</i> into variable
+<i>si</i>.  If you wish to store a data type into the body of the
+<span class="a">Atlast</span> word other than the default of
+<tt>stackitem</tt> (defined as <tt>long</tt>), cast the pointer to the
+correct pointer type.  See the <tt>atl_vardef</tt> sample below for an
+example of a floating point variable being created and initialised
+using <tt>atl_body</tt>.</p>
+
+<h3>Defining variables: <tt>atl_vardef</tt></h3>
+
+<p>
+Shared variables are a convenient way of intercommunicating between a
+host application and <span class="a">Atlast</span>.  By making the
+application's state visible to and changeable by the
+<span class="a">Atlast</span> program, the program is given the information
+it needs and the power to direct the application.  A shared variable
+is an <span class="a">Atlast</span> variable defined by the
+application, the address of which is known both to
+<span class="a">Atlast</span> (via the dictionary), and to the application
+(by a pointer returned when the shared variable is created).  To
+create a shared variable, call:</p>
+
+<pre class="c">
+dictword *<i>var</i>
+
+<i>var</i> = atl_vardef(<i>name</i>, <i>size</i>);
+</pre>
+
+<p>
+where <i>name</i> is a character pointer giving the name of the
+variable to be created and <i>size</i> is an integer specifying its
+size in bytes.  To create an
+<span class="a">Atlast</span> integer variable or
+a floating point variable, <i>size</i> should be 8 bytes.  Storage for
+the variable is reserved on the <span class="a">Atlast</span> heap. 
+If insufficient heap space is available to create the variable
+<tt>NULL</tt> is returned.  Otherwise, the address of the variable's
+dictionary entry is returned.  <b>Beware:</b> the dictionary entry
+<i>is not</i> the storage address of the variable's value.  To obtain
+that address, call <tt>atl_body</tt>, described above.</p>
+
+<p>
+For example, we can create a floating point variable containing a
+crummy approximation of &pi; with the sequence:</p>
+
+<pre class="c">
+dictword *pi;
+
+pi = atl_vardef("Pi", sizeof(double));
+if (pi == NULL) {
+    printf("Can't atl_vardef PI.\n");
+} else {
+    *((double *) atl_body(pi)) =
+        3.141596235;
+}
+</pre>
+
+<p>
+We could then print the value with an <span class="a">Atlast</span>
+program run under that application with:</p>
+
+<pre class="c">
+pi @ f.
+</pre>
+
+<h3>Executing words: <tt>atl_exec</tt></h3>
+
+<p>
+If you've obtained the dictionary address of an <span
+class="a">Atlast</span> word definition, your application can execute
+it with the sequence:</p>
+
+<pre class="c">
+dictword *<i>dw</i>;
+int <i>stat</i>;
+
+<i>stat</i> = atl_exec(<i>dw</i>);
+</pre>
+
+<p>
+The status codes returned in <i>stat</i> are identical to those
+returned by <tt>atl_eval</tt>.  The distinction between
+<tt>atl_eval</tt> and <tt>atl_exec</tt> is subtle, but
+important&mdash;it can make a big difference in the performance of
+your application.  If you know the name of an
+<span class="a">Atlast</span> word, you can execute it either by passing a
+string containing its name to <tt>atl_eval</tt> or by saving its
+dictionary address in a variable and executing the word directly from
+the dictionary address with <tt>atl_exec</tt>. The results of these
+two operations are identical, but when you pass a string to
+<tt>atl_eval</tt>, <span class="a">Atlast</span> is forced to scan the
+string, parse its contents into the token denoting the word, look that
+word up in the dictionary, and only then execute the word.  You can
+bypass all these nonproductive and time consuming preliminaries if you
+know the word's dictionary address and use <tt>atl_exec</tt>.</p>
+
+<p>
+Creative use of <tt>atl_lookup</tt> and <tt>atl_exec</tt> provide one
+of the most powerful ways for <span class="a">Atlast</span> to enrich
+an application.  If you create an application to perform a relatively
+well-defined task, you can, before entering its main processing loop,
+inquire with <tt>atl_lookup</tt> whether the user has defined a series
+of words specified by the application.  If so, their dictionary
+addresses are saved in pointers in the application code.  Then, as the
+application executes, at each step where the user might want to
+interpose his own processing or replace the application's default
+processing with his own method, the application merely tests whether
+the word associated with that step has been defined in the
+<span class="a">Atlast</span> program and, if so, runs it with
+<tt>atl_exec</tt>.  If the default processing that would otherwise
+occur is made available as an <span class="a">Atlast</span> primitive
+with <tt>atl_primdef</tt> (see below), it is extremely easy for the
+<span class="a">Atlast</span> program to examine the data at the point
+it has been &ldquo;hooked,&rdquo; perform any special processing it
+wishes, or inherit the default processing simply by running the
+primitive that does it.  If the user has not requested special
+processing, the cost to the application to provide that opportunity is
+one pointer comparison against <tt>NULL</tt>. Compared with the
+benefits of open architecture, this is a small price indeed.</p>
+
+<p>
+You can pass arguments to the definition you're invoking with
+<tt>atl_exec</tt> either by storing them in shared variables created
+with <tt>atl_vardef</tt> or, usually the best approach, pushing them
+on the stack before executing the definition.  See the discussion of
+<tt>atl_primdef</tt> below for information on access to the stack from
+C.</p>
+
+<h3>Defining primitives: <tt>atl_primdef</tt></h3>
+
+<p>
+Most of the power of <span class="a">Atlast</span> derives from the
+ease with which C coded primitives can be added to the language.  Once
+integrated, they may be used in conjunction with the looping,
+conditional execution, and other facilities already present.
+<span class="a">Atlast</span> has been deliberately designed to make the
+addition of primitives simple and safe: nothing like the peril-filled
+nightmare of adding a function to AutoLISP.  Still, to extend any
+language you need to learn your way around its memory architecture and
+control structure.  So, listen up, walk through the examples, and
+before long you'll be adding primitives like a pro.</p>
+
+<p>
+An <span class="a">Atlast</span> primitive is a C function.  When the
+primitive is executed, that function is called and may do whatever it
+likes.  A primitive can be as simple as one that discards the top item
+on the stack, or as complex as one that prepares a ray-traced bitmap
+from a three dimensional geometric model.  Most primitives communicate
+with one another via the <i>stack</i>.  Some primitives also access
+variables stored on the <i>heap</i>.  Finally, a very few primitives
+manipulate data stored on the <i>return stack</i>, which
+<span class="a">Atlast</span> uses to track the nesting of execution.  A
+user-defined primitive will rarely need to access the return stack. 
+Definitions in <tt>atldef.h</tt> simplify access to each of these
+areas of memory.  Let's look at them one by one.</p>
+
+<h4>Accessing the stack</h4>
+
+<p>
+The stack pointer variable is called <tt>stk</tt>, and always points
+to the next available <tt>stackitem</tt> stack item.  Primitives rarely
+reference <tt>stk</tt> directly, since it is usually far more
+convenient to use definitions that hide the complexity of indexing the
+stack.  The following tools are provided for access to the stack.</p>
+
+<p class="hang">
+<tt>Sl(</tt><i>n</i><tt>)</tt>	Before you access any items on the
+stack, you must check that the stack actually contains at least as
+many items as you'll be using.  If not, a <i>stack underflow</i> must
+be reported.  At the start of your primitive, simply use the statement
+&ldquo;<tt>Sl(</tt><i>n</i><tt>);</tt>&rdquo;, where <i>n</i> is the
+number of stack items you'll be referencing.  If you use the topmost
+two stack items, <tt>S0</tt> and <tt>S1</tt>, you'd use
+<tt>Sl(2);</tt>.  It's important that you use the definition rather
+than check the stack limit directly; if you later build your
+application with stack checking off, the <tt>Sl()</tt> statement will
+generate no code, automatically configuring  your primitive for
+maximum speed.
+</p>
+
+<p class="hang">
+<tt>So(</tt><i>n</i><tt>)</tt>	Before you push any new items onto the
+stack, you must check that the stack will not overflow the area
+allocated to it when those items are added.  If it would, a <i>stack
+overflow</i> must be reported.  At the start of your primitive, simply
+use the statement &ldquo;<tt>So(</tt><i>n</i><tt>);</tt>&rdquo;, where
+<i>n</i> is the number of new stack items you'll be pushing.  If you
+are adding one new item to the stack, use
+&ldquo;<tt>So(1)</tt>;&rdquo;. It's important that you use the
+definition rather than check the stack limit directly; if you later
+build your application with stack checking off, the <tt>So()</tt>
+statement will generate no code, automatically configuring your
+primitive for maximum speed.
+</p>
+
+<p class="hang">
+<tt>S0</tt>&ndash; <tt>S5</tt>  The definitions <tt>S0</tt>,
+<tt>S1</tt>,&hellip; <tt>S5</tt> provide direct access to the top 6
+stack items.  <tt>S0</tt> is the top item on the stack,
+<tt>S1</tt> is the next item, and so on.  These definitions may be
+used on either the left or right side of an assignment.  
+</p>
+
+<p class="hang">
+<tt>Pop</tt>  Used as a statement, &ldquo;<tt>Pop;</tt>&rdquo;,
+discards the topmost item from the stack.  
+</p>
+
+<p class="hang">
+<tt>Pop2</tt>  Used as a statement, &ldquo;<tt>Pop2;</tt>&rdquo;,
+discards the topmost two items from the stack.  
+</p>
+
+<p class="hang">
+<tt>Npop(</tt><i>n</i><tt>)</tt>  Discards the top <i>n</i>
+items from the stack.  
+</p>
+
+<p class="hang">
+<tt>Push</tt>  Used on the left side of an assignment, stores the
+value on the right side into the next free stack item and increments
+the stack pointer.  
+</p>
+
+<p class="hang">
+<tt>Realsize</tt>  For primitives that use floating point numbers,
+<tt>Realsize</tt> gives the number of stack items occupied by one
+floating point number.  A primitive that expects two floating point
+arguments on the stack and will leave them there, adding one new
+floating point result would begin
+&ldquo;<tt>Sl(2&nbsp;*&nbsp;Realsize); So(Realsize);</tt>&rdquo;.  In
+the 64-bit implementation of <span class="a">Atlast</span> <tt>Realsize</tt>
+is 1, but using it future-proofs your code.
+</p>
+
+<p class="hang">
+<tt>REAL0</tt>&ndash;<tt>REAL2</tt>  These definitions provide read
+access to the topmost three floating point numbers on the stack.  The
+stack cells are automatically cast to type <tt>double</tt>.  It is
+<i>essential</i> that you access floating point values this
+way&mdash;some computers may require that <tt>double</tt>s be aligned on 8
+byte boundaries, and the <tt>REAL</tt><i>n</i> definitions
+automatically align the variable if the machine requires
+it.  
+</p>
+
+<p class="hang">
+<tt>SREAL0(</tt><i>f</i><tt>)</tt>,
+<tt>SREAL1(</tt><i>f</i><tt>)</tt>  These definitions, used as
+functions, store their floating point arguments into the topmost
+(<tt>SREAL0</tt>) and next (<tt>SREAL1</tt>) floating point items on
+the stack.  Because of the possible need to compensate for machine
+alignment restrictions, the <tt>REAL</tt><i>n</i> definitions cannot
+be used on the left side of an assignment; use these  functions
+instead.  There is no performance penalty if, as for most 64-bit machines,
+there is no need to align storage of floating point values.
+</p>
+
+<p class="hang">
+<tt>Realpop</tt>  Pops the topmost floating point value from the
+stack.  Equivalent to <tt>Npop(Realsize)</tt>.  
+</p>
+
+<p class="hang">
+<tt>Realpop2</tt>  Pops the two topmost floating point values from the
+stack.  Equivalent to <tt>Npop(2&nbsp;*&nbsp;Realsize)</tt>.
+</p>
+
+<p>
+<i>He said this was easy!</i>  Please bear with me&mdash;all of this
+is far simpler (and more compact) to use than it is to explain.  If
+you can't stand it, skip ahead to the sample primitive definitions and
+see for yourself.  O.K., welcome back.  Probably 95% of all the
+primitives you'll add to <span class="a">Atlast</span> will confine
+themselves to accessing the stack.  Heap and return stack access is
+far less frequent (and may indicate poor design).  In any case, if you
+need to do it, here's how.
+</p>
+
+<h4>Accessing the heap</h4>
+
+<p>
+The <i>heap</i> is a pool of memory used to allocate static objects. 
+Most heap is allocated by <span class="a">Atlast</span> <i>defining
+words</i>, such as <tt>VARIABLE</tt>, <tt>CONSTANT</tt>, and the
+<tt>:</tt> used to define new executable words, themselves stored on
+the heap.  The ability to create defining words for new data types
+directly in <span class="a">Atlast</span> is one of its most powerful
+features and reduces the need to manipulate the heap from user
+primitives.  The heap is accessed through a set of definitions similar
+to those used for the stack.  The heap pointer itself is named
+<tt>hptr</tt>, but will rarely be referenced explicitly.
+</p>
+
+<p class="hang">
+<tt>Ho(</tt><i>n</i><tt>)</tt>  Before you store any new data on the
+heap, you must verify that doing so would not cause the heap to grow
+past its assigned maximum size.  This event is called a <i>heap
+overflow</i>, and the <tt>Ho(</tt><i>n</i><tt>)</tt> function checks
+for it and terminates execution should overflow occur.  The number
+<i>n</i> is the amount of heap you propose to allocate, <i>in terms of
+stack items</i>, each of eight bytes.  If you wish to allocate a number
+expressed in bytes, you must round it up to the next larger multiple
+of eight.  A portable way to do this is to use the expression:
+<tt>((</tt><i>x</i><tt> + (sizeof(stackitem) &minus; 1)) /
+sizeof(stackitem))</tt> where <i>x</i> is the number of bytes of heap
+you require.  If you configure stack and heap checking off for maximum
+performance, <tt>Ho(</tt><i>n</i><tt>)</tt> generates no code.  
+</p>
+
+<p class="hang">
+<tt>Hpc(</tt><i>ptr</i><tt>)</tt>   Heap storage is normally accessed
+via pointers passed on the stack.  Since the stack contains many other
+types of data, accidentally using a non-pointer as a heap address
+could be catastrophic.  Before using any value as a pointer to the
+heap, call <tt>Hpc(</tt><i>ptr</i><tt>)</tt> where <i>ptr</i> is the
+pointer.  If the pointer is not within the heap, a <i>bad pointer</i>
+error will be reported and execution terminated.  If you configure
+stack and heap checking off,  <tt>Hpc(</tt><i>ptr</i><tt>)</tt>
+generates no code.  
+</p>
+
+<p class="hang">
+<tt>Hstore</tt>  Used on the left of an assignment, stores the
+64-bit value on the right side into the next available heap
+cell and advances the heap allocation pointer.
+</p>
+
+<h4>Accessing the return stack</h4>
+
+<p>
+The return stack remembers the point at which one definition invoked
+another, tracks loop control indices, and stores other items internal
+to the evaluator.  Messing with the return stack is generally a very
+bad idea.  This information is presented not so much to encourage you
+to use the return stack as for completeness and to document the code
+within <tt>atlast.c</tt> that maintains it.  The stack pointer
+variable is called <tt>rstk</tt>, and always points to the next
+available return stack item.  Return stack items have a type of
+<tt>**dictword</tt> (got that?), which is also <tt>typedef</tt>ed to
+<tt>rstackitem</tt>.</p>
+
+<p>
+Primitives rarely reference <tt>rstk</tt> directly, since it is
+usually far more convenient to use definitions that hide the
+complexity of indexing the return stack.  The following tools provide
+access to the return stack.</p>
+
+<p class="hang">
+<tt>Rsl(</tt><i>n</i><tt>)</tt>  Before you access any items on the
+return stack, you must check that the return stack actually contains
+at least as many items as you'll be using.  Otherwise, a <i>return
+stack underflow</i> must be reported.  At the start of your primitive,
+simply use the statement
+&ldquo;<tt>Rsl(</tt><i>n</i><tt>);</tt>&rdquo;, where <i>n</i> is the
+number of return stack items you'll be referencing.  If you use the
+topmost two items, <tt>R0</tt> and <tt>R1</tt>, you'd use
+<tt>Rsl(2);</tt>.  It's important that you use the definition rather
+than check the return stack limit directly; if you later build your
+application with stack checking off, the <tt>Rsl()</tt> statement will
+generate no code, automatically configuring your primitive for maximum
+speed.  
+</p>
+
+<p class="hang">
+<tt>Rso(</tt><i>n</i><tt>)</tt>  Before you push any new items onto
+the return stack, you must check that the return stack will not
+overflow the area allocated to it when those items are added.  If it
+would, a <i>return stack overflow</i> must be reported.  At the start
+of your primitive, simply use the statement
+&ldquo;<tt>Rso(</tt><i>n</i><tt>);</tt>&rdquo;, where <i>n</i> is the
+number of new return stack items you'll be pushing.  If you are adding
+one new item to the return stack, use &ldquo;<tt>Rso(1);</tt>&rdquo;. 
+It's important that you use the definition rather than check the
+return stack limit directly; if you later build your application with
+stack checking off, the <tt>Rso()</tt> statement will generate no
+code, automatically configuring your primitive for maximum speed.  
+</p>
+
+<p class="hang">
+<tt>R0</tt>&ndash;<tt>R2</tt>  The definitions <tt>R0</tt>,
+<tt>R1</tt>, and <tt>R2</tt> provide direct access to the top three
+return stack items.  <tt>R0</tt> is the top item on the return stack,
+<tt>R1</tt> is the next item, and <tt>R2</tt> is the third item. 
+These definitions may be used on either the left or the right side of
+an assignment.
+</p>
+
+<p class="hang">
+<tt>Rpop</tt>  Used as a statement, &ldquo;<tt>Rpop</tt>;&rdquo;,
+discards the topmost item from the return stack.  
+</p>
+
+<p class="hang">
+<tt>Rpush</tt>  Used on the left side of an assignment, stores the
+value on the right side into the next free return stack item and
+increments the return stack pointer.
+</p>
+
+<h4>Coding primitive functions</h4>
+
+<p>
+Each primitive word you define is implemented by a C function declared
+as &ldquo;<tt>static&nbsp;void</tt>&rdquo;. The header file
+<tt>atldef.h</tt> defines &ldquo;<tt>prim</tt>&rdquo; as this type to
+more explicitly identify primitive implementing functions.</p>
+
+<p>
+As an example of a simple primitive, let's add the ability to obtain
+the date and time in Unix format and to extract the hours, minutes,
+and seconds from the Unix date word.  We'll add two new primitive
+functions to <span class="a">Atlast</span>: <tt>TIME</tt>, which
+leaves the number of seconds since midnight on January 1, 1970 on the
+top of the stack, and <tt>HHMMSS</tt> which, given the value returned
+by <tt>TIME</tt>, leaves the hours, minutes, and seconds represented
+by that time in the three top stack locations, with the seconds at the
+top.</p>
+
+<p>
+Here is the C function that implements the <tt>TIME</tt> primitive
+word:</p>
+
+<pre class="c">
+prim ptime()
+{
+    So(1);
+    Push = time(NULL);
+}
+</pre>
+
+<p>
+Since we're placing one new word on the stack, we call <tt>So(1)</tt>
+to check for stack overflow.  That accomplished, we simply use
+<tt>Push</tt> on the left side of the assignment to store the
+<tt>long</tt> time word returned by the Unix-compatible
+<tt>time()</tt> function (which is supported by most non-Unix C
+libraries, as well).</p>
+
+<p>
+The function for our <tt>HHMMSS</tt> primitive is more complicated,
+but not much.  It uses the Unix-compatible <tt>localtime()</tt>
+function which, passed a pointer to a word containing a time in the
+format returned by <tt>time()</tt>, returns a pointer to an internal
+static structure with fields that give the day, month, year, hour,
+minute, second, etc. represented by that time.  The primitive
+definition is:</p>
+
+<pre class="c">
+prim phhmmss()
+{
+    struct tm *lt;
+
+    Sl(1);
+    So(2);
+    lt = localtime(&amp;S0);
+    S0 = lt->tm_hour;
+    Push = lt->tm_min;
+    Push = lt->tm_sec;
+}
+</pre>
+
+<p>
+This primitive expects one argument (the time word) on the stack, so
+it begins with <tt>Sl(1)</tt> to verify that it is present.  It will
+replace that value with the hours and add two new items to the stack
+for the minutes and seconds, so it next uses <tt>So(2)</tt> to ensure
+those additions won't cause the stack to overflow.  Now it can get
+down to business.  It calls <tt>localtime()</tt>, passing the address
+of the first stack item (the time word), then stores the hours back
+into that word and uses <tt>Push</tt> twice to add the minutes and
+seconds.</p>
+
+<p>
+Once the primitive functions are coded, the primitives are actually
+added to <span class="a">Atlast</span> by listing them in a primitive
+definition table and registering that table with <span
+class="a">Atlast</span> by calling the <tt>atl_primdef</tt> function. 
+The primitive definition table for our two new primitives is as
+follows:</p>
+
+<pre class="c">
+static struct primfcn timep[] = {
+    {"0TIME",   ptime},
+    {"0HHMMSS", phhmmss},
+    {NULL,      (codeptr) 0}
+};
+</pre>
+
+<p>
+The <tt>primfcn</tt> structure is declared in <tt>atldef.h</tt>. You
+may list as many primitives in the table as you wish.  The end of the
+table is marked by an entry with <tt>NULL</tt> instead of a primitive
+name.  For each primitive you define, make an entry with two
+components: the first a string with the first character
+&ldquo;<tt>0</tt>&rdquo; if the primitive is a normal word and
+&ldquo;<tt>1</tt>&rdquo; if it is a compile-time immediate word, the
+balance of which is the name of the primitive with all letters upper
+case.  The second component is the name of the function that
+implements the primitive.  The primitives in the table are defined by
+calling <tt>atl_primdef</tt>, passing the address of the table as
+follows:</p>
+
+<p>
+<tt>atl_primdef(primt);</tt></p>
+
+<p>
+You can call <tt>atl_primdef</tt> any time after you've called
+<tt>atl_init</tt>, and you can call it as many times as you like with
+different <tt>primfcn</tt> tables.  If a name in a <tt>primfcn</tt>
+table duplicates the name of a built-in <span class="a">Atlast</span>
+primitive or a primitive defined by an previous call on
+<tt>atl_primdef</tt>, the earlier definition will be hidden and
+inaccessible.</p>
+
+<p>
+With these new primitives installed, we can now try them out
+interactively from <span class="a">Atlast</span>.</p>
+
+<pre class="c">
+% atlast
+-&gt; time .
+634539503 -&gt; time .
+634539505 -&gt; time .
+634539508 -&gt; time .s
+Stack: 634539512 -&gt; hhmmss
+-&gt; .s
+Stack: 20 58 32 -&gt; clear time hhmmss .s
+Stack: 20 58 44 -&gt; clear
+-&gt; time hhmmss .s
+Stack: 20 58 52 -&gt; ^D
+%
+</pre>
+
+<p>
+Everything seems to be behaving as we intended.  Our new primitives
+work!</p>
+
+<p>
+Finally, let's look at a more complicated primitive, one involving
+floating point.  Turning again to the Leibniz series for &pi;, here is
+the C language definition of a primitive function to evaluate it.  The
+function is compatible with the one we previously implemented in <span
+class="a">Atlast</span>: it expects the number of terms on the top of
+the stack and returns the approximation of &pi; as a floating point
+value in the top stack item.</p>
+
+<pre class="c">
+prim pleibniz()
+{
+    long nterms;
+    double sum = 0.0,
+           numer = 1.0,
+           denom = 1.0;
+
+    Sl(1);
+    nterms = S0;
+    Pop;
+
+    So(Realsize);
+    Push = 0;
+    while (nterms-- &gt; 0) {
+        sum += numer / denom;
+        numer = -numer;
+        denom += 2.0;
+    }
+    SREAL0(sum * 4.0);
+}
+</pre>
+
+<p>
+This function begins by verifying with <tt>Sl(1)</tt> that its term
+count argument is present on the stack.  It loads that argument,
+referenced as <tt>S0</tt>, and saves it in the loop count,
+<tt>nterms</tt>. The iteration count is then discarded from the stack
+with <tt>Pop</tt>. Next, <tt>So(Realsize)</tt> verifies that the stack
+will not overflow when the real result is pushed (recall that
+<tt>Realsize</tt> is the number of stack items per floating point
+result&mdash;this is always one, but using the definition makes for
+more readable code).  We then immediately count on <tt>Realsize</tt>
+being one as we use a <tt>Push</tt> operation to allocate the stack
+space for the result and clear it to zero.  That done, the function
+falls into the loop that sums the requested number of terms of the
+series.  Finally, <tt>SREAL0()</tt> is used to store the result into
+the top floating point value on the stack: the one we created with the
+<tt>Push</tt>.</p>
+
+<p>
+This primitive is declared and registered with
+<span class="a">Atlast</span> with the sequence:</p>
+
+<pre class="c">
+static struct primfcn pip[] = {
+    {"0LEIBNIZ", pleibniz},
+    {NULL, (codeptr) 0}
+};
+atl_primdef(pip);
+</pre>
+
+<p>
+With a C coded primitive implementation, we can explore the outer
+reaches of this awful series.  For example, here it's used to print
+the error after the first half million terms.</p>
+
+<pre class="c">
+% atlast
+-&gt; variable pi
+-&gt; 1.0 atan 4.0 f* pi !
+-&gt; pi @ f. cr
+3.14159
+-&gt; 500000 leibniz pi @ f- f. cr
+-2e-06
+-&gt; ^D
+%
+</pre>
+
+
+<p>
+As you can see from the brevity and straightforwardness of these
+sample primitives, there's nothing complicated or difficult about
+adding a primitive to <span class="a">Atlast</span>.  The overhead in
+executing a primitive function from <span class="a">Atlast</span>
+rather than calling it from a C program is a matter of a few
+instructions.  If you need guidance in implementing primitives that
+interact with <span class="a">Atlast</span> in more intricate ways,
+the best source of information is the source code of
+<tt>atlast.c</tt>; find a standard primitive with arguments and
+results similar to the one you're planning to add, and look up its
+implementing function.  That should abate any confusion about the fine
+points of stack and heap manipulation.</p>
+
+<h2>Package configuration</h2>
+
+<p>
+In addition to the <a href="#gconf">global configuration
+parameters</a>, you can choose precisely which components of <span
+class="a">Atlast</span> are included when building a version for your
+application by creating a custom configuration file named
+<tt>custom.h</tt>, then compiling <tt>atlast.c</tt> with the
+<tt>-DCUSTOM</tt> compiler flag.  A custom configuration file has the
+following format:</p>
+
+<p style="line-spacing: 100%;">
+<tt>#define INDIVIDUALLY</tt><br />
+<tt>#define</tt> <i>Package</i><sub>1</sub><br />
+<tt>#define</tt> <i>Package</i><sub>2</sub><br />
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &#8942;<br />
+<tt>#define</tt> <i>Package<sub>n</sub></i>
+</p>
+
+<p>
+The <i>Package<sub>n</sub></i> definitions select which <span
+class="a">Atlast</span> subpackages you wish included in your
+application.  The individual subpackages are described in the
+following paragraphs.  The <tt>WORDSUSED</tt> and <tt>WORDSUNUSED</tt>
+primitives, available as part of the <tt>WORDSUSED</tt> package, let
+you determine which primitives are used within an <span
+class="a">Atlast</span> program and, consequently, which packages are
+required to execute it.</p>
+
+<p>
+<b>The <tt>ARRAY</tt> package.</b>  Provides declaration of <i>n</i>
+dimensional arrays of arbitrary data types and runtime subscript
+calculation for such arrays.  Primitives: <tt>ARRAY</tt>.</p>
+
+<p>
+<b>The <tt>BREAK</tt> package.</b>  Enables asynchronous break
+processing via the <tt>atl_break</tt> function.  Disabling this
+package saves an insignificant amount of memory but increases
+execution speed by about 10%.  Primitives: none.</p>
+
+<p>
+<b>The <tt>COMPILERW</tt> package.</b>  Enables primitives used to
+define new compiler words.  Primitives: <tt>[COMPILE]</tt>,
+<tt>LITERAL</tt>, <tt>COMPILE</tt>, <tt>&lt;MARK</tt>,
+<tt>&lt;RESOLVE</tt>, <tt>&gt;MARK</tt>, <tt>&gt;RESOLVE</tt>.</p>
+
+<p>
+<b>The <tt>CONIO</tt> package.</b>  Enables primitives that display
+interactive output.  These primitives may be disabled in applications
+that provide no interaction with the user.  Primitives: <tt>.</tt>,
+<tt>?</tt>, <tt>CR</tt>, <tt>.S</tt>, <tt>.&quot;</tt>, <tt>.(</tt>,
+<tt>TYPE</tt>, <tt>WORDS</tt>.</p>
+
+<p>
+<b>The <tt>DEFFIELDS</tt> package.</b>  Enables low level primitives
+used to manipulate dictionary items.  These primitives are rarely used
+except in very ambitious language extensions coded in <span
+class="a">Atlast</span>.  Primitives: <tt>FIND</tt>,
+<tt>&gt;NAME</tt>, <tt>&gt;LINK</tt>, <tt>BODY&gt;</tt>,
+<tt>NAME&gt;</tt>, <tt>LINK&gt;</tt>, <tt>N&gt;LINK</tt>,
+<tt>L&gt;NAME</tt>, <tt>NAME&gt;S!</tt>, <tt>S&gt;NAME!</tt>.</p>
+
+<p>
+<b>The <tt>DOUBLE</tt> package.</b>  Enables double word operations. 
+Primitives: <tt>2DUP</tt>, <tt>2DROP</tt>,
+<tt>2SWAP</tt>, <tt>2OVER</tt>, <tt>2ROT</tt>, <tt>2VARIABLE</tt>,
+<tt>2CONSTANT</tt>, <tt>2!</tt>, <tt>2@</tt>.</p>
+
+<p>
+<b>The <tt>EVALUATE</tt> package.</b>  Allows evaluating a string as an
+<span class="a">Atlast</span> expression.
+Primitives: <tt>EVALUATE</tt>.</p>
+
+<p>
+<b>The <tt>FILEIO</tt> package.</b>  Enables the C language-like file
+primitives.  If your application does not require access to files,
+this package may be disabled.  Primitives: <tt>FILE</tt>,
+<tt>FOPEN</tt>, <tt>FCLOSE</tt>, <tt>FDELETE</tt>, <tt>FGETS</tt>,
+<tt>FPUTS</tt>, <tt>FREAD</tt>, <tt>FWRITE</tt>, <tt>FGETC</tt>,
+<tt>FPUTC</tt>, <tt>FTELL</tt>, <tt>FSEEK</tt>, <tt>FLOAD</tt>. In
+addition, <tt>FILE</tt> variables <tt>STDIN</tt>, <tt>STDOUT</tt>, and
+<tt>STDERR</tt> are defined, automatically bound to the Unix I/O
+streams with the same names.</p>
+
+<p>
+<b>The <tt>MATH</tt> package.</b>  Enables the mathematical
+functions.  <tt>MATH</tt> can be enabled only if <tt>REAL</tt> is also
+enabled.  Primitives: <tt>ACOS</tt>, <tt>ASIN</tt>, <tt>ATAN</tt>,
+<tt>ATAN2</tt>, <tt>COS</tt>, <tt>EXP</tt>, <tt>LOG</tt>,
+<tt>POW</tt>, <tt>SIN</tt>, <tt>SQRT</tt>, <tt>TAN</tt>.</p>
+
+<p>
+<b>The <tt>MEMMESSAGE</tt> package.</b>  Controls whether messages are
+printed when runtime errors (such as stack overflow and underflow, bad
+pointers, etc.) occur.  Disabling these messages doesn't save time or
+significant memory: it's intended for deeply embedded applications
+where returning the error status to the caller of <tt>atl_eval</tt> or
+<tt>atl_exec</tt> is all the error notification that is appropriate. 
+Primitives: none.</p>
+
+<p><a name="prologue" class="i"></a>
+<b>The <tt>PROLOGUE</tt> package.</b>  The amount of memory allocated
+to the stack, return stack, heap, and temporary string buffers can be
+controlled by <a href="#memall">setting the external variables</a>
+governing those areas. You can allow the <span class="a">Atlast</span>
+program text to override the default settings you make by enabling the
+<tt>PROLOGUE</tt> package.  If this package is enabled, special
+statements of the form:</p>
+
+<pre class="c">
+\ *<i>area</i> <i>size</i>
+</pre>
+
+<p>
+are recognised by the evaluator when encountered before the first line
+containing executable <span class="a">Atlast</span> text.  To permit
+processing of the prologue, <i>do not</i> explicitly call
+<tt>atl_init</tt>; it will be called automatically by
+<tt>atl_eval</tt> after the prologue is processed.  The following
+<i>area</i> specifications are recognised in the prologue:</p>
+
+<dl class="tj" style="margin-left: 2em;">
+<dt>STACK</dt> <dd>Specifies
+the stack size in terms of <tt>stackitem</tt>
+stack items.  
+</dd>
+
+<dt>RSTACK</dt> <dd>Specifies
+the return stack size in items.  
+</dd>
+
+<dt>HEAP</dt> <dd>Specifies
+the heap size as a number of <tt>stackitem</tt>
+heap items.</dd>
+
+<dt>TEMPSTRL</dt> <dd>Specifies
+the length of each temporary string buffer in characters.</dd>
+
+<dt>TEMPSTRN</dt> <dd>Specifies
+the number of temporary string buffers.</dd>
+</dl>
+
+<p>
+<b>The <tt>REAL</tt> package.</b>  Enables floating point operations. 
+Primitives: <tt>(FLIT)</tt>, <tt>F+</tt>, <tt>F-</tt>,
+<tt>F*</tt>, <tt>F/</tt>, <tt>FMIN</tt>, <tt>FMAX</tt>,
+<tt>FNEGATE</tt>, <tt>FABS</tt>, <tt>F=</tt>, <tt>F&lt;&gt;</tt>,
+<tt>F&gt;</tt>, <tt>F&lt;</tt>, <tt>F&gt;=</tt>, <tt>F&lt;=</tt>,
+<tt>F.</tt>, <tt>FLOAT</tt>, <tt>FIX</tt>.</p>
+
+<p>
+<b>The <tt>SHORTCUTA</tt> package.</b> Enables shortcut integer
+arithmetic operations.  Primitives: <tt>1+</tt>, <tt>2+</tt>,
+<tt>1-</tt>, <tt>2-</tt>, <tt>2*</tt>, <tt>2/</tt>.</p>
+
+<p>
+<b>The <tt>SHORTCUTC</tt> package.</b> Enables shortcut integer
+comparison operations.  Primitives: <tt>0=</tt>, <tt>0&lt;&gt;</tt>,
+<tt>0&lt;</tt>, <tt>0&gt;</tt>.</p>
+
+<p>
+<b>The <tt>STRING</tt> package.</b> Enables string operations. 
+Primitives: <tt>(STRLIT)</tt>, <tt>STRING</tt>, <tt>STRCPY</tt>,
+<tt>S!</tt>, <tt>STRCAT</tt>, <tt>S+</tt>, <tt>STRLEN</tt>,
+<tt>STRCMP</tt>, <tt>STRCHAR</tt>, <tt>SUBSTR</tt>, <tt>COMPARE</tt>,
+<tt>STRFORM</tt>, <tt>STRINT</tt>, <tt>STRREAL</tt>.  If the
+<tt>REAL</tt> package is also enabled, the <tt>FSTRFORM</tt> primitive
+is available, as well.</p>
+
+<p>
+<b>The <tt>SYSTEM</tt> package.</b>  Enables submission of commands in
+strings to the operating system for execution.  This package may be
+enabled only if the implementation of C used to build
+<span class="a">Atlast</span> provides the <tt>system()</tt> function. 
+Primitives: <tt>SYSTEM</tt>.</p>
+
+<p>
+<b>The <tt>TRACE</tt> package.</b>  Enables runtime word execution
+trace.  Primitives: <tt>TRACE</tt>.</p>
+
+<p><a name="wback"></a>
+<b>The <tt>WALKBACK</tt> package.</b>  Enables the walkback through
+nested invocation of words when an error is detected at runtime. 
+Primitives: <tt>WALKBACK</tt>.</p>
+
+<p>
+<b><a name="wordsused" class="i">The <tt>WORDSUSED</tt>
+package.</a></b>   Enables the collection of information on which
+words are used and not used by a program, and the primitives that list
+words used and words not used.  This facility allows you to determine,
+in the development phase of an <span class="a">Atlast</span>
+application, which packages are needed and which can be safely
+dispensed with.  Primitives: <tt>WORDSUSED</tt>,
+<tt>WORDSUNUSED</tt>.</p>
+
+<h2>Summary and Conclusions</h2>
+
+<p>
+Everything should be programmable.  <i>Everything!</i>  I have come to
+the conclusion that to write almost any program in a closed manner is
+a mistake that invites the expenditure of uncounted hours
+&ldquo;enhancing&rdquo; it over its life cycle.  Further tweaks,
+&ldquo;features,&rdquo; and &ldquo;fixes&rdquo; often result in a
+product so massive and incomprehensible that it becomes unlearnable,
+unmaintainable, and eventually unusable.</p>
+
+<p>
+Far better to invest the effort up front to create a product flexible
+enough to be adapted at will, by its users, to their immediate needs.
+If the product is programmable in a portable, open form, user
+extensions can be exchanged, compared, reviewed by the product
+developer, and eventually incorporated into the mainstream of the
+product.</p>
+
+<p>
+It is far, far better to have thousands of creative users expanding
+the scope of one's product in ways the original developers didn't
+anticipate&mdash;in fact, working for the vendor without pay, than it
+is to have thousands of frustrated users writing up wish list requests
+that the vendor can comply with only by hiring people and paying them
+to try to accommodate the perceived needs of the users.  Open
+architecture and programmability not only benefit the user, not only
+make a product better in the technical and marketing sense, but
+confer a direct economic advantage upon the vendor of such a
+product&mdash;one mirrored in a commensurate disadvantage to the
+vendor of a closed product.</p>
+
+<p>
+The chief argument against programmability has been the extra
+investment needed to create open products.
+<span class="a">Atlast</span> provides a way of building open products in
+the same, or less, time than it takes to construct closed ones.  Just
+as no C programmer in his right mind would sit down and write his own
+buffered file I/O package when a perfectly fine one was sitting in the
+library, why re-invent a macro language or other parameterisation and
+programming facility when there's one just sitting there that's as
+fast as native C code for all but the most absurd misapplications,
+takes a tiny bit of memory with every gew-gaw and optional feature at its
+command enabled all at once, is portable to any machine that supports
+C by simply recompiling a single file, and can be integrated into a
+typical application at a basic level in less than 15 minutes?</p>
+
+<p>
+Am I proposing that every application suddenly look like FORTH?  Of
+course not; no more than output from PostScript printers looks like
+PostScript, or applications that run on 80386 processors resemble
+80386 assembly language.  <span class="a">Atlast</span> is an
+intermediate language, seen only by those engaged in implementing and
+extending the product.  Even then, <span class="a">Atlast</span> is a
+chameleon which, with properly defined words, can look like almost
+anything you like, even at the primitive level of the interpreter.</p>
+
+<p>
+Again and again, I have been faced with design situations where I
+knew that I really needed programmability, but didn't have the time,
+the memory, or the fortitude to face the problem squarely and solve
+it the right way.  Instead, I ended up creating a kludge that
+continued to burden me through time.  This is just a higher level
+manifestation of the nightmares perpetrated by old-time programmers
+who didn't have access to a proper dynamic memory allocator or linked
+list package.  Just because programmability is the magic smoke of
+computing doesn't mean we should be spooked by the ghost in the
+machine or hesitant to confer its power upon our customers.</p>
+
+<p>
+Don't think of <span class="a">Atlast</span> as FORTH.  Don't think of
+it as a language at all.  The best way to think of
+<span class="a">Atlast</span> is as a library routine that gives you
+<i>programmability</i>, in the same sense other libraries provide file
+access, window management, or graphics facilities.  The whole concept
+of &ldquo;programmability in a can&rdquo; is odd&mdash;it took me two
+years to really got my end effector around it and crush it into
+submission.  Think about it; play with it; and you may discover a
+better way to build applications.</p>
+
+<p>
+Open is better.  <span class="a">Atlast</span> lets you build open
+programs in less time than you used to spend writing closed ones. 
+Programs that inherit their open architecture from <span
+class="a">Atlast</span> will share, across the entire product line and
+among all hardware platforms that support it, a common, clean, and
+efficient means of user extensibility.  The potential benefits of this
+are immense.</p>
+
+<p />
+
+<p class="rgt">
+<em>
+John Walker<br />
+Muir Beach, California<br />
+January 22&ndash;February 11, 1990<br />
+4072 lines of code
+</em>
+<br />
+<br />
+Initial release: February, 1990<br />
+AMIX release 1.0: September, 1992<br />
+Web version 1.0: August, 1995<br />
+Web version 1.1: July, 2002<br />
+Web version 1.2: October, 2007<br />
+Web version 2.0 (64-bit): July, 2014
+</p>
+
+<h1 class="ctr"><span class="a">Atlast</span> Primitives: Alphabetical Reference</h1>
+
+<div class="primitives">
+<table class="primitives">
+<tr>
+    <td class="c1">
+	    +
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>n3 = n1 + n2</b>
+	    <br />
+	    Adds <i>n1</i>
+	    and <i>n2</i> and leaves sum on stack. 
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    -
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>n3 = n1 &minus; n2</b><br />
+	    Subtracts
+	    <i>n2</i> from <i>n1</i> and leaves difference on stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    *
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>n3 = n1 &times; n2</b><br />
+	    Multiplies
+	    <i>n1</i> and <i>n2</i> and leaves product on stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    /
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>n3 = n1 &divide; n2</b><br />
+	    Divides
+	    <i>n1</i> by <i>n2</i> and leaves quotient on stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ' <i>word</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    caddr
+    </td>
+    <td class="c5">
+    	    <b>Obtain compilation address</b><br />
+	    Places
+	    the compilation address of the following word on the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ,
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Store in heap</b><br />
+	    Reserves
+	    eight bytes of heap space, initialising it to <i>n</i>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    .
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print top of stack</b><br />
+	    Prints
+	    the number on the top of the stack.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    .( <i>str</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print constant string</b><br />
+	    Immediately
+	    prints the string that follows in the input stream.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    .S
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print stack</b><br />
+	    Prints
+	    entire contents of stack.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    .&quot; <i>str</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print immediate string</b><br />
+	    Prints
+	    the string literal that follows in line.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    : <i>w</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Begin definition</b><br />
+	    Begins compilation of a word named <i>w</i>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ;
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>End definition</b><br />
+	    Ends
+	    compilation of word.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &lt;
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Less than</b><br />
+	    Returns
+	    &minus;1 if <i>n1</i>&lt;<i>n2</i>, 0
+	    otherwise.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &lt;=
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Less than or equal</b><br />
+	    Returns
+	    &minus;1 if <i>n1</i>&le;<i>n2</i>,
+	    0 otherwise.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &lt;&gt;
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Not equal</b><br />
+	    Returns &minus;1 if <i>n1</i>&ne;<i>n2</i>,
+	    0 otherwise.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    =
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Equal</b><br />
+	    Returns &minus;1 if <i>n1</i>=<i>n2</i>, 0
+	    otherwise.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Greater</b><br />
+	    Returns &minus;1 if <i>n1</i>&gt;<i>n2</i>, 0
+	    otherwise.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;=
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Greater than or equal</b><br />
+	    Returns &minus;1 if <i>n1</i>&ge;<i>n2</i>,
+	    0 otherwise.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ?
+    </td>
+    <td class="c2">
+	    addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print indirect</b><br />
+	    Prints the value at the address at the top of the stack.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    !
+    </td>
+    <td class="c2">
+	    n addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Store into address</b><br />
+	    Stores the value <i>n</i> into the address <i>addr</i>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    +!
+    </td>
+    <td class="c2">
+	    n addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Add indirect</b><br />
+	    Adds <i>n</i> to the word at address <i>addr</i>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    @
+    </td>
+    <td class="c2">
+	    addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Load</b><br />
+	    Loads the value at <i>addr</i> and leaves it at the top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    [
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Set interpretive state</b><br />
+	    Within a compilation, returns to the interpretive state.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ['] <i>word</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    caddr
+    </td>
+    <td class="c5">
+    	    <b>Push next word</b><br />
+	    Places the compile address of the following word in a definition onto the
+	    stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ]
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>End interpretive state</b><br />
+	    Restore compile state after temporary interpretive state.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    0&lt;
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Less than zero</b><br />
+	    Returns &minus;1 if <i>n1</i> less than zero,
+	    0 otherwise.
+    </td>
+    <td class="c6">
+	    SHORTCUTC
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    0&lt;&gt;
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Nonzero</b><br />
+	    Returns &minus;1 if <i>n1</i> is nonzero, 0
+	    otherwise.
+    </td>
+    <td class="c6">
+	    SHORTCUTC
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    0=
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Equal to zero</b><br />
+	    Returns &minus;1 if <i>n1</i> is zero, 0
+	    otherwise.
+    </td>
+    <td class="c6">
+	    SHORTCUTC
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    0&gt;
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Greater than zero</b><br />
+	    Returns &minus;1 if <i>n1</i> greater than
+	    zero, 0 otherwise.
+    </td>
+    <td class="c6">
+	    SHORTCUTC
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    1+
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Add one</b><br />
+	    Adds one to top of stack.
+    </td>
+    <td class="c6">
+	    SHORTCUTA
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    1-
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Subtract one</b><br />
+	    Subtracts one from top of stack.
+    </td>
+    <td class="c6">
+	    SHORTCUTA
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2+
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Add two</b><br />
+	    Adds two to top of stack.
+    </td>
+    <td class="c6">
+	    SHORTCUTA
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2-
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Subtract two</b><br />
+	    Subtracts two from top of stack.
+    </td>
+    <td class="c6">
+	    SHORTCUTA
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2*
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Times two</b><br />
+	    Multiplies the top of stack by two.
+    </td>
+    <td class="c6">
+	    SHORTCUTA
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2/
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Divide by two</b><br />
+	    Divides top of stack by two.
+    </td>
+    <td class="c6">
+	    SHORTCUTA
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2!
+    </td>
+    <td class="c2">
+	    n1 n2 addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Store two words</b><br />
+	    Stores the two words <i>n1</i> and n2 at addresses
+	    <i>addr</i> and <i>addr</i>+8.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2@
+    </td>
+    <td class="c2">
+	    addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n1 n2
+    </td>
+    <td class="c5">
+    	    <b>Load two words</b><br />
+	    Places the two words starting at <i>addr</i> on the top of
+    	    the stack
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2CONSTANT <i>x</i>
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Double word constant</b><br />
+	    Declares a double word constant <i>x</i>.  When <i>x</i>
+	    is executed, <i>n1</i> and <i>n2</i> are placed on the
+	    stack.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2DROP
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Double drop</b><br />
+	    Discards the two top items from the stack.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2DUP
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n1 n2 n1 n2
+    </td>
+    <td class="c5">
+    	    <b>Duplicate two</b><br />
+	    Duplicates the top two items on the stack.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2OVER
+    </td>
+    <td class="c2">
+	    n1 n2 n3 n4
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n1 n2 n3 n4 n1 n2
+    </td>
+    <td class="c5">
+    	    <b>Double over</b><br />
+	    Copies the second pair of items on the stack to the top of stack.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2ROT
+    </td>
+    <td class="c2">
+	    n1 n2 n3 n4 n5 n6
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3 n4 n5 n6 n1 n2
+    </td>
+    <td class="c5">
+    	    <b>Double rotate</b><br />
+	    Rotates the third pair on the stack to the top, moving
+	    down the first and second pairs.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2SWAP
+    </td>
+    <td class="c2">
+	    n1 n2 n3 n4
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3 n4 n1 n2
+    </td>
+    <td class="c5">
+    	    <b>Double swap</b><br />
+	    Swaps the first and second pairs on the stack.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    2VARIABLE <i>x</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Double variable</b><br />
+	    Creates a two cell (16 byte) variable named <i>x</i>.  When
+	    <i>x</i> is executed, the address of the 16 byte area is
+	    placed on the stack.
+    </td>
+    <td class="c6">
+	    DOUBLE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ABORT
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Abort</b><br />
+	    Clears the stack and performs a <tt>QUIT</tt>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ABORT&quot; <i>str</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Abort with message</b><br />
+	    Prints the string literal that follows in line, then
+	    aborts, clearing all execution state to return to the
+	    interpreter.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ABS
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>n2=|n1|</b><br />
+	    Replaces top of stack with its absolute value.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ACOS
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>f2=arccos f1</b><br />
+	    Replaces floating point top of stack with its arc cosine.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    AGAIN
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Indefinite loop</b><br />
+	    Marks the end of an indefinite loop opened by the matching
+    	    <tt>BEGIN</tt>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ALLOT
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Allocate heap</b><br />
+	    Allocates <i>n</i> bytes of heap space.  The space
+	    allocated is rounded to the next higher multiple of 8.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    AND
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>Bitwise and</b><br />
+	    Stores the bitwise and of <i>n1</i> and n2 on the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ARRAY <i>x</i>
+    </td>
+    <td class="c2">
+	    s<sub>1</sub> s<sub>2</sub>
+	    &hellip; s<sub><i>n</i></sub>
+	    n esize
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Declare array</b><br />
+	    Declares an array <i>x</i> of elements of <i>esize</i>
+	    bytes each with <i>n</i> subscripts, each ranging from 0
+	    to <i>s</i><sub><i>n</i></sub>&minus;1.
+    </td>
+    <td class="c6">
+	    ARRAY
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ASIN
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>f2=arcsin f1</b><br />
+	    Replaces floating point top of stack with its arc sine.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ATAN
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>f2=arctan f1</b><br />
+	    Replaces floating point top of stack with its arc tangent.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ATAN2
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>f3=arctan f1/f2</b><br />
+	    Replaces the two floating point numbers on the top of the
+	    stack with the arc tangent of their quotient, properly
+	    handling zero denominators.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    BEGIN
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Begin loop</b><br />
+	    Begins an indefinite loop.  The end of the loop is marked
+	    by the matching <tt>AGAIN</tt>, <tt>REPEAT</tt>, or
+	    <tt>UNTIL</tt>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    BODY&gt;
+    </td>
+    <td class="c2">
+	    pfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    cfa
+    </td>
+    <td class="c5">
+    	    <b>Body to word</b><br />
+	    Given body address of word, return the compile address of
+    	    the word.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;BODY
+    </td>
+    <td class="c2">
+	    cfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    pfa
+    </td>
+    <td class="c5">
+    	    <b>Body address</b><br />
+	    Given the compile address of a word, return its body
+	    (parameter) address.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    BRANCH
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Branch</b><br />
+	    Jump to the address that follows in line.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ?BRANCH
+    </td>
+    <td class="c2">
+	    flag
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Conditional branch</b><br />
+	    If the top of stack is zero, jump to the address which
+	    follows in line.  Otherwise skip the address and continue
+	    execution.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    C!
+    </td>
+    <td class="c2">
+	    n addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Store byte</b><br />
+	    The 8 bit value <i>n</i> is stored in the byte at address
+    	    <i>addr</i>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    C@
+    </td>
+    <td class="c2">
+	    addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Load byte</b><br />
+	    The byte at address <i>addr</i> is placed on the top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    C,
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Compile byte</b><br />
+	    The 8 bit value <i>n</i> is stored in the next free byte
+	    of the heap and the heap pointer is incremented by one.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    C=
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Align heap</b><br />
+	    The heap allocation pointer is adjusted to the next eight
+	    byte boundary.  This must be done following a sequence of
+	    <tt>C,</tt> operations.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    CLEAR
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Clear stack</b><br />
+	    All items on the stack are discarded.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    COMPARE
+    </td>
+    <td class="c2">
+	    s1 s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Compare strings</b><br />
+	    The two strings whose addresses are given by <i>s1</i> and
+	    <i>s2</i> are compared.  If <i>s1</i> is less than
+	    <i>s2</i>, &minus;1 is returned; if <i>s1</i> is greater
+	    than <i>s2</i>, 1 is returned.  If <i>s1</i> and <i>s2</i>
+	    are equal, 0 is returned.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    COMPILE <i>w</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Compile word</b><br />
+	    Adds the compile address of the word that follows in line
+	    to the definition currently being compiled.
+    </td>
+    <td class="c6">
+	    COMPILERW
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    [COMPILE] <i>word</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Compile immediate word</b><br />
+	    Compiles the address of <i>word</i>, even if <i>word</i>
+	    is marked <tt>IMMEDIATE</tt>.
+    </td>
+    <td class="c6">
+	    COMPILERW
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    CONSTANT <i>x</i>
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Declare constant</b><br />
+	    Declares a constant named <i>x</i>.  When <i>x</i> is
+	    executed, the value <i>n</i> will be left on the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    COS
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>Cosine</b><br />
+	    The floating point value on the top of the stack is
+	    replaced by its cosine.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    CR
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Carriage return</b><br />
+	    The standard output stream is advanced to the first
+	    character of the next line.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    CREATE
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Create object</b><br />
+	    Create an object, given the name which appears next in the
+	    input stream, with a default action of pushing the
+	    parameter field address of the object when executed.  No
+	    storage is allocated; normally the parameter field will be
+	    allocated and initialised by the defining word code that
+	    follows the <tt>CREATE</tt>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    DEPTH
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Stack depth</b><br />
+	    Returns the number of items on the stack before
+	    <tt>DEPTH</tt> was executed.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    DO
+    </td>
+    <td class="c2">
+	    limit n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Definite loop</b><br />
+	    Executes the loop from the following word to the matching
+	    <tt>LOOP</tt> or <tt>+LOOP</tt> until <i>n</i> increments
+	    past the boundary between <i>limit</i>&minus;1 and
+	    <i>limit</i>.  Note that the loop is always executed at
+	    least once (see <tt>?DO</tt> for an alternative to this).
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ?DO
+    </td>
+    <td class="c2">
+	    limit n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Conditional loop</b><br />
+	    If <i>n</i> equals <i>limit</i>, skip immediately to the
+	    matching <tt>LOOP</tt> or <tt>+LOOP</tt>.  Otherwise,
+	    enter the loop, which is thenceforth treated as a normal
+	    <tt>DO</tt> loop.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    DOES&gt;
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Run-time action</b><br />
+	    Sets the run-time action of a word created by the last
+	    <tt>CREATE</tt> to the code that follows.  When the word
+	    is executed, its body address is pushed on the stack, then
+	    the code that follows the <tt>DOES&gt;</tt> will be
+	    executed.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    DROP
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Discard top of stack</b><br />
+	    Discards the value at the top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    DUP
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n n
+    </td>
+    <td class="c5">
+    	    <b>Duplicate</b><br />
+	    Duplicates the value at the top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ?DUP
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    0 / n n
+    </td>
+    <td class="c5">
+    	    <b>Conditional duplicate</b><br />
+	    If top of stack is nonzero, duplicate it.  Otherwise leave
+	    zero on top of stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ELSE
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Else</b><br />
+	    Used in an
+	    <tt>IF</tt>&mdash;<tt>ELSE</tt>&mdash;<tt>THEN</tt>
+	    sequence, delimits the code to be executed if the
+	    if-condition was false.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    EVALUATE
+    </td>
+    <td class="c2">
+	    s
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    	    n
+    </td>
+    <td class="c5">
+    	    <b>Evaluate string</b><br />
+	    Evaluate string <i>s</i> with the <span class="a">Atlast</span>
+	    interpreter and leave the status code (as returned by
+	    <tt><a href="#atleval">atl_eval</a></tt>) on the top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    EXECUTE
+    </td>
+    <td class="c2">
+	    addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Execute word</b><br />
+	    Executes the word with compile address <i>addr</i>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    EXIT
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Exit definition</b><br />
+	    Exit from the current definition immediately.  Note that
+	    <tt>EXIT</tt> cannot be used within a
+	    <tt>DO</tt>&mdash;<tt>LOOP</tt>; use <tt>LEAVE</tt>
+	    instead.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    EXP
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>f2=<em>e</em><sup>f1</sup></b><br />
+	    The floating point value on the top of the stack is
+	    replaced by its natural antilogarithm.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F+
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>f3=f1+f2</b><br />
+	    The two floating point values on the top of the stack are
+	    added and their sum is placed on the top of the stack.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F-
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>f3=f1&minus;f2</b><br />
+	    The floating point value <i>f2</i> is subtracted from the
+	    floating point value <i>f1</i> and the result is placed on
+	    the top of the stack.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F*
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>f3=f1&times;f2</b><br />
+	    The two floating point values on the top of the stack are
+	    multiplied and their product is placed on the top of the
+	    stack.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F/
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>f3=f1&divide;f2</b><br />
+	    The floating point value <i>f1</i> is divided by the
+	    floating point value <i>f2</i> and the quotient is placed
+	    on the top of the stack.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F.
+    </td>
+    <td class="c2">
+	    f
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print floating point</b><br />
+	    The floating point value on the top of the stack is printed.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F&lt;
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Floating less than</b><br />
+	    The top of stack is set to &minus;1 if <i>f1</i> is less
+	    than <i>f2</i> and 0 otherwise.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F&lt;=
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Floating less than or equal</b><br />
+	    The top of stack is set to &minus;1 if <i>f1</i> is less
+	    than or equal to <i>f2</i> and 0 otherwise.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F&lt;&gt;
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Floating not equal</b><br />
+	    The top of stack is set to &minus;1 if <i>f1</i> is not
+	    equal to <i>f2</i> and 0 otherwise.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F=
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Floating equal</b><br />
+	    The top of stack is set to &minus;1 if <i>f1</i> is equal
+	    to <i>f2</i> and 0 otherwise.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F&gt;
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Floating greater than</b><br />
+	    The top of stack is set to &minus;1 if <i>f1</i> is
+	    greater than <i>f2</i> and 0 otherwise.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    F&gt;=
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Floating greater than or equal</b><br />
+	    The top of stack is set to &minus;1 if <i>f1</i> is
+	    greater than or equal to <i>f2</i> and 0 otherwise.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FABS
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>f2=|f1|</b><br />
+	    Replaces floating point top of stack with its absolute value.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FCLOSE
+    </td>
+    <td class="c2">
+	    file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Close file</b><br />
+	    The specified file is closed.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FDELETE
+    </td>
+    <td class="c2">
+	    s1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Delete file</b><br />
+	    The file named by the string <i>s1</i> is deleted.  If the
+	    file was successfully deleted, &minus;1 is returned.  
+	    Otherwise, 0 is returned.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FGETC
+    </td>
+    <td class="c2">
+	    file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    char
+    </td>
+    <td class="c5">
+    	    <b>Read next character</b><br />
+	    The next byte is read from the specified <i>file</i> and
+	    placed on the top of the stack.  If end of file is
+	    encountered, &minus;1 is returned.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FGETS
+    </td>
+    <td class="c2">
+	    file string
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Read string</b><br />
+	    The next text line (limited to a maximum of 132
+	    characters) is read from <i>file</i> and stored into the
+	    buffer at <i>string</i>.  Input lines are recognised in
+	    all the end of line conventions accepted by AutoCAD.  The
+	    end of line delimiter is deleted from the input line and
+	    is not stored in the <i>string</i>.  If end of file is
+	    encountered 0 is returned; otherwise &minus;1 is placed on
+	    the top of the stack.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FILE <i>f</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Declare file</b><br />
+	    A file descriptor named <i>f</i> is declared.  This
+	    descriptor may subsequently be associated with a file with
+	    <tt>FOPEN</tt>.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FIND
+    </td>
+    <td class="c2">
+	    s
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    word flag
+    </td>
+    <td class="c5">
+    	    <b>Look up word</b><br />
+	    The word with name given by the string <i>s</i> is looked
+	    up in the dictionary.  If a definition if not found,
+	    <i>word</i> will be left as the address of the string and
+	    <i>flag</i> will be set to zero.  If the word is present
+	    in the dictionary, its compilation address is placed on
+	    the stack, followed by a <i>flag</i> that is 1 if the word
+	    is marked for immediate execution and &minus;1 otherwise.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FIX
+    </td>
+    <td class="c2">
+	    f
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Floating to integer</b><br />
+	    The floating point number on the top of the stack is
+	    replaced by the integer obtained by truncating its
+	    fractional part.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (FLIT)
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f
+    </td>
+    <td class="c5">
+    	    <b>Push floating point literal</b><br />
+	    Pushes the floating point literal that follows in line
+	    onto the top of the stack.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FLOAD
+    </td>
+    <td class="c2">
+	    file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    stat
+    </td>
+    <td class="c5">
+    	    <b>Load file</b><br />
+	    The source program starting at the current position in
+	    <i>file</i> is loaded as if its text appeared at the
+	    current character position in the input stream.  The
+	    status resulting from the evaluation is left on the stack,
+	    zero if normal, negative in case of error.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FLOAT
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f
+    </td>
+    <td class="c5">
+    	    <b>Integer to floating</b><br />
+	    The integer value on the top of the stack is replaced by
+	    the equivalent floating point value.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FMAX
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>Floating point maximum</b><br />
+	    The greater of the two floating point values on the top of
+	    the stack is placed on the top of the stack.
+    </td>
+    <td class="c6">
+	    FLOAT
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FMIN
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>Floating point minimum</b><br />
+	    The lesser of the two floating point values on the top of
+	    the stack is placed on the top of the stack.
+    </td>
+    <td class="c6">
+	    FLOAT
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FNEGATE
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>Floating negate</b><br />
+	    The negative of the floating point value on the top of the
+	    stack replaces the floating point value there.
+    </td>
+    <td class="c6">
+	    FLOAT
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FOPEN
+    </td>
+    <td class="c2">
+	    fname fmodes file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>File open</b><br />
+	    The previously declared <i>file</i> is opened with the
+	    specified file name <i>fname</i> given by the string
+	    address on the stack in the mode given by <i>fmodes</i>. 
+	    The bits in <i>fmodes</i> are 1 for read, 2 for write, 4
+	    for binary, and 8 to create a new file.  If the file is
+	    opened successfully, &minus;1 is returned; otherwise 0 is
+	    returned.  The Unix standard streams, <tt>STDIN</tt>,
+	    <tt>STDOUT</tt>, and <tt>STDERR</tt> are predefined and
+	    automatically opened.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FORGET <i>w</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Forget word</b><br />
+	    The most recent definition of word <i>w</i> is deleted,
+	    along with all words declared more recently than the named
+	    word.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FPUTC
+    </td>
+    <td class="c2">
+	    char file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    stat
+    </td>
+    <td class="c5">
+    	    <b>Write character</b><br />
+	    The character <i>char</i> is written to <i>file</i>.  If
+	    the character is written successfully, <i>char</i> is
+	    returned; otherwise &minus;1 is returned.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FPUTS
+    </td>
+    <td class="c2">
+	    s file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    flag
+    </td>
+    <td class="c5">
+    	    <b>Write string</b><br />
+	    The string <i>s</i> is written to <i>file</i>, followed by
+	    the end of line delimiter used on this system.  If the
+	    line is written successfully, &minus;1 is returned;
+	    otherwise 0 is returned.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FREAD
+    </td>
+    <td class="c2">
+	    file len buf
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    nread
+    </td>
+    <td class="c5">
+    	    <b>Read file</b><br />
+	    <i>Len</i> bytes are read into buffer <i>buf</i> from
+	    <i>file</i>.  The number of bytes actually read is
+	    returned on the top of the stack.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FSEEK
+    </td>
+    <td class="c2">
+	    offset base file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Set file position</b><br />
+	    The current position of <i>file</i> is set to
+	    <i>offset</i>, relative to the specified <i>base</i>: if
+	    0, the beginning of the file; if 1, the current file
+	    position; if 2, the end of file.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FSTRFORM
+    </td>
+    <td class="c2">
+	    f format str
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Floating point edit</b><br />
+	    Edits a floating point number <i>f</i> into string
+	    <i>str</i>, using the <tt>sprintf</tt> format given by the
+	    string <i>format</i>.
+    </td>
+    <td class="c6">
+	    REAL
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FTELL
+    </td>
+    <td class="c2">
+	    file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    pos
+    </td>
+    <td class="c5">
+    	    <b>File position</b><br />
+	    Returns the current byte position <i>pos</i> for file
+    	    <i>file</i>.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    FWRITE
+    </td>
+    <td class="c2">
+	    len buf file
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    nwrit
+    </td>
+    <td class="c5">
+    	    <b>File write</b><br />
+	    Writes <i>len</i> bytes from the buffer at address
+	    <i>buf</i> to <i>file</i>. The number of bytes written is
+	    returned on the top of the stack.
+    </td>
+    <td class="c6">
+	    FILEIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    HERE
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    addr
+    </td>
+    <td class="c5">
+    	    <b>Heap address</b><br />
+	    The current heap allocation address is placed on the top
+    	    of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    I
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Inner loop index</b><br />
+	    The index of the innermost <tt>DO</tt>&mdash;<tt>LOOP</tt>
+	    is placed on the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    IF
+    </td>
+    <td class="c2">
+	    flag
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Conditional statement</b><br />
+	    If <i>flag</i> is nonzero, the following statements are
+	    executed.  Otherwise, execution resumes after the matching
+	    <tt>ELSE</tt> clause, if any, or after the matching
+	    <tt>THEN</tt>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    IMMEDIATE
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Mark immediate</b><br />
+	    The most recently defined word is marked for immediate
+	    execution; it will be executed even if entered in compile
+	    state.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    J
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Outer loop index</b><br />
+	    The loop index of the next to innermost
+	    <tt>DO</tt>&mdash;<tt>LOOP</tt> is placed on the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    L&gt;NAME
+    </td>
+    <td class="c2">
+	    lfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    nfa
+    </td>
+    <td class="c5">
+    	    <b>Link to name field</b><br />
+	    Given pointer field address is returned.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    LEAVE
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Exit <tt>DO</tt>&mdash;<tt>LOOP</tt></b><br />
+	    The innermost <tt>DO</tt>&mdash;<tt>LOOP</tt> is
+	    immediately exited.  Execution resumes after the
+	    <tt>LOOP</tt> statement marking the end of the loop.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    LINK&gt;
+    </td>
+    <td class="c2">
+	    lfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    cfa
+    </td>
+    <td class="c5">
+    	    <b>Link field to compile address</b><br />
+	    Given the link field address of a word on the top of the
+	    stack, the compile address of the word is returned.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;LINK
+    </td>
+    <td class="c2">
+	    cfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    lfa
+    </td>
+    <td class="c5">
+    	    <b>Link address</b><br />
+	    Given the compile address of a word, return its link field
+    	    address.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (LIT)
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Push literal</b><br />
+	    Pushes the integer literal that follows in line onto the
+	    top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    LITERAL
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Compile literal</b><br />
+	    Compiles the value on the top of the stack into the
+	    current definition.  When the definition is executed, that
+	    value will be pushed onto the top of the stack.
+    </td>
+    <td class="c6">
+	    COMPILERW
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    LOG
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>Natural logarithm</b><br />
+	    The floating point value on the top of the stack is
+	    replaced by its natural logarithm.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    LOOP
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Increment loop index</b><br />
+	    Adds one to the index of  the active loop.  If the limit
+	    is reached, the loop is exited.  Otherwise, another
+	    iteration is begun.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    +LOOP
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Add to loop index</b><br />
+	    Adds <i>n</i> to the index of  the active loop.  If the
+	    limit is reached, the loop is exited.  Otherwise, another
+	    iteration is begun.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &lt;MARK
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    addr
+    </td>
+    <td class="c5">
+    	    <b>Backward jump mark</b><br />
+	    Saves the current compilation address on the stack.
+    </td>
+    <td class="c6">
+	    COMPILERW
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;MARK
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    addr
+    </td>
+    <td class="c5">
+    	    <b>Forward mark</b><br />
+	    Compiles a place-holder offset for a forward jump and
+	    saves its address for later backpatching on the stack.
+    </td>
+    <td class="c6">
+	    COMPILERW
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    MAX
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>Maximum</b><br />
+	    The greater of <i>n1</i> and <i>n2</i> is left on the top
+	    of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    MEMSTAT
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print memory status</b><br />
+	    The current and maximum memory usage so far are printed on
+	    standard output.  The sizes allocated for the stack,
+	    return stack, and heap are edited, as well as the
+	    percentage in use.
+    </td>
+    <td class="c6">
+	    MEMSTAT
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    MIN
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>Minimum</b><br />
+	    The lesser of <i>n1</i> and <i>n2</i> is left on the top
+    	    of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    MOD
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>Modulus (remainder)</b><br />
+	    The remainder when <i>n1</i> is divided by <i>n2</i> is
+	    left on the top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    /MOD
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3 n4
+    </td>
+    <td class="c5">
+    	    <b>n3 = n1 mod n2, n4 = n1 &divide; n2</b><br />
+	    Divides <i>n1</i> by <i>n2</i> and leaves quotient on top
+	    of stack, remainder as next on stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    N&gt;LINK
+    </td>
+    <td class="c2">
+	    nfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    lfa
+    </td>
+    <td class="c5">
+    	    <b>Name to link field</b><br />
+	    Given the name field pointer address of a word on the top
+	    of the stack, leaves the link field address of the word on
+	    the top of stack.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;NAME
+    </td>
+    <td class="c2">
+	    cfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    nfa
+    </td>
+    <td class="c5">
+    	    <b>Name address</b><br />
+	    Given the compile address of a word, return its name
+	    pointer field address.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    NAME&gt;
+    </td>
+    <td class="c2">
+	    nfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    cfa
+    </td>
+    <td class="c5">
+    	    <b>Name field to compile address</b><br />
+	    Given the address of the name pointer field of a word on
+	    the top of the stack, leaves the compile address of the
+	    word on the top of the stack.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    NAME&gt;S!
+    </td>
+    <td class="c2">
+	    nfa string
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Get name field</b><br />
+	    Stores the name field of the word pointed to by <i>nfa</i>
+    	    into <i>string</i>.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    NEGATE
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Negate</b><br />
+	    Negates the value on the top of the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (NEST)
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Invoke word</b><br />
+	    Pushes the instruction pointer onto the return stack and
+	    sets the instruction pointer to the next word in line.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    NOT
+    </td>
+    <td class="c2">
+	    n1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2
+    </td>
+    <td class="c5">
+    	    <b>Logical not</b><br />
+	    Inverts the bits in the value on the top of the stack. 
+	    This performs logical negation for truth values of
+	    &minus;1 (True) and 0 (False).
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    OR
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>Bitwise or</b><br />
+	    Stores the bitwise or of <i>n1</i> and <i>n2</i> on the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    OVER
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n1 n2 n1
+    </td>
+    <td class="c5">
+    	    <b>Duplicate second item</b><br />
+	    The second item on the stack is copied to the top.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    PICK
+    </td>
+    <td class="c2">
+	    &hellip; n<sub>2</sub>
+	    n<sub>1</sub> n<sub>0</sub>
+	    index
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    &hellip; n0 n<sub>index</sub>
+    </td>
+    <td class="c5">
+    	    <b>Pick item from stack</b><br />
+	    The <i>index</i>th stack item is copied to the top of the
+	    stack.  The top of stack has <i>index</i> 0, the second
+	    item <i>index</i> 1, and so on.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    POW
+    </td>
+    <td class="c2">
+	    f1 f2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f3
+    </td>
+    <td class="c5">
+    	    <b>f3=f1<sup>f2</sup></b><br />
+	    The second floating point value on the stack is taken to
+	    the power of the top floating point stack value and the
+	    result is left on the top of the stack.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    QUIT
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Quit execution</b><br />
+	    The return stack is cleared and control is returned to the
+	    interpreter.  The stack is not disturbed.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;R
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>To return stack</b><br />
+	    Removes the top item from the stack and pushes it onto the
+    	    return stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    R&gt;
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>From return stack</b><br />
+	    The top value is removed from the return stack and pushed
+    	    onto the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    R@
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Fetch return stack</b><br />
+	    The top value on the return stack is pushed onto the
+	    stack.  The value is not removed from the return stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    REPEAT
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Close <tt>BEGIN</tt>&mdash;<tt>WHILE</tt>&mdash;<tt>REPEAT</tt> loop</b><br />
+	    Another iteration of the current
+	    <tt>BEGIN</tt>&mdash;<tt>WHILE</tt>&mdash;<tt>REPEAT</tt>
+	    loop having been completed, execution continues after the
+	    matching <tt>BEGIN</tt>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &lt;RESOLVE
+    </td>
+    <td class="c2">
+	    addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Backward jump resolve</b><br />
+	    Compiles the address saved by the matching <tt>&lt;MARK</tt>.
+    </td>
+    <td class="c6">
+	    COMPILERW
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    &gt;RESOLVE
+    </td>
+    <td class="c2">
+	    addr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Forward jump resolve</b><br />
+	    Backpatches the address left by the matching
+	    <tt>&gt;MARK</tt> to jump to the next word to be compiled.
+    </td>
+    <td class="c6">
+	    COMPILERW
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ROLL
+    </td>
+    <td class="c2">
+	    &hellip; n<sub>2</sub> n<sub>1</sub> n<sub>0</sub> index
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    &hellip; n<sub>0</sub> n<sub>index</sub>
+    </td>
+    <td class="c5">
+    	    <b>Rotate <i>index</i>th item to top</b><br />
+	    The stack item selected by <i>index</i>, with 0
+	    designating the top of stack, 1 the second item, and so
+	    on, is moved to the top of the stack.  The intervening
+	    stack items are moved down one item.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    ROT
+    </td>
+    <td class="c2">
+	    n1 n2 n3
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2 n3 n1
+    </td>
+    <td class="c5">
+    	    <b>Rotate 3 items</b><br />
+	    The third item on the stack is placed on the top of the
+	    stack and the second and first items are moved down.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    -ROT
+    </td>
+    <td class="c2">
+	    n1 n2 n3
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3 n1 n2
+    </td>
+    <td class="c5">
+    	    <b>Reverse rotate</b><br />
+	    Moves the top of stack to the third item, moving the third
+	    and second items up.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    S!
+    </td>
+    <td class="c2">
+	    s1 s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Store string</b><br />
+	    The string at address <i>s1</i> is copied into the string
+    	    at <i>s2</i>.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    S+
+    </td>
+    <td class="c2">
+	    s1 s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>String concatenate</b><br />
+	    The string at address <i>s1</i> is concatenated to the
+	    string at address <i>s2</i>.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    S&gt;NAME!
+    </td>
+    <td class="c2">
+	    string nfa
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Store name field</b><br />
+	    Stores the <i>string</i> into the name field of the word
+	    given by name pointer field <i>nfa</i>.
+    </td>
+    <td class="c6">
+	    DEFFIELDS
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    SHIFT
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>Shift n1 by n2 bits</b><br />
+	    The value <i>n1</i> is logically shifted the number of
+	    bits specified by <i>n2</i>, left if <i>n2</i> is positive
+	    and right if <i>n2</i> is negative.  Zero bits are shifted
+	    into vacated bits.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    SIN
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>Sine</b><br />
+	    The floating point value on the top of the stack is
+	    replaced by its sine.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    SQRT
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>Square root</b><br />
+	    The floating point value on the top of the stack is
+	    replaced by its square root.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STATE
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    addr
+    </td>
+    <td class="c5">
+    	    <b>System state variable</b><br />
+	    The address of the system state variable is pushed on the
+	    stack.  The state is zero if  interpreting, nonzero if
+	    compiling.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRCAT
+    </td>
+    <td class="c2">
+	    s1 s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>String concatenate</b><br />
+	    The string at address <i>s1</i> is concatenated to the
+	    string at address <i>s2</i>.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRCHAR
+    </td>
+    <td class="c2">
+	    s1 s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>String character search</b><br />
+	    The string at address <i>s1</i> is searched for the first
+	    occurrence of the first character of string <i>s2</i>.  If
+	    that character appears nowhere in <i>s1</i>, 0 is
+	    returned.  Otherwise, the address of the first occurrence
+	    in <i>s1</i> is left on the top of the stack.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRCMP
+    </td>
+    <td class="c2">
+	    s1 s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>String compare</b><br />
+	    The string at address <i>s1</i> is compared to the string
+	    at address <i>s2</i>.  If <i>s1</i> is less than
+	    <i>s2</i>, &minus;1 is returned.  If <i>s1</i> and
+	    <i>s2</i> are equal, 0 is returned. If <i>s1</i> is
+	    greater than <i>s2</i>, 1 is returned.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRCPY
+    </td>
+    <td class="c2">
+	    s1 s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Store string</b><br />
+	    The string at address <i>s1</i> is copied into the string
+    	    at <i>s2</i>.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRFORM
+    </td>
+    <td class="c2">
+	    n format str
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Integer edit</b><br />
+	    Edits the number <i>n</i> into string <i>str</i>, using
+	    the <tt>sprintf</tt> format given by the string
+	    <i>format</i>.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRING <i>x</i>
+    </td>
+    <td class="c2">
+	    size
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Declare string</b><br />
+	    Declares a string named <i>x</i> of a maximum of
+	    <i>size</i>&minus;1 characters.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRINT
+    </td>
+    <td class="c2">
+	    s1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    s2 n
+    </td>
+    <td class="c5">
+    	    <b>String to integer</b><br />
+	    Scans an integer from <i>s1</i>.  The integer scanned is
+	    placed on the top of the stack and the address of the
+	    character that terminated the scan is stored as the next
+	    item on the stack.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRLEN
+    </td>
+    <td class="c2">
+	    s
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>String length</b><br />
+	    The length of string <i>s</i> is placed on the top of the
+    	    stack.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (STRLIT)
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    s
+    </td>
+    <td class="c5">
+    	    <b>String literal</b><br />
+	    Pushes the address of the string literal that follows in
+	    line onto the stack.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    STRREAL
+    </td>
+    <td class="c2">
+	    s1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    s2 f
+    </td>
+    <td class="c5">
+    	    <b>String to real</b><br />
+	    Scans a floating point number from <i>s1</i>.  The
+	    floating point number scanned is placed on the top of the
+	    stack and the address of the character that terminated the
+	    scan is stored as the next item on the stack.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    SUBSTR
+    </td>
+    <td class="c2">
+	    s1 start length s2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Extract substring</b><br />
+	    The substring of string <i>s1</i> that begins at character
+	    <i>start</i>, with the first character numbered 0,
+	    extending for <i>length</i> characters, with &minus;1
+	    designating all characters to the end of string, is stored
+	    into the string <i>s2</i>.
+    </td>
+    <td class="c6">
+	    STRING
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    SWAP
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n2 n1
+    </td>
+    <td class="c5">
+    	    <b>Swap top two items</b><br />
+	    The top two stack items are interchanged.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    SYSTEM
+    </td>
+    <td class="c2">
+	    s
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n
+    </td>
+    <td class="c5">
+    	    <b>Execute system command</b><br />
+	    The operating system command given in the string <i>s</i>
+	    is passed to the system's command interpreter (shell). 
+	    The system result status returned after the command
+	    completes is left on the top of the stack.
+    </td>
+    <td class="c6">
+	    SYSTEM
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    TAN
+    </td>
+    <td class="c2">
+	    f1
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    f2
+    </td>
+    <td class="c5">
+    	    <b>Tangent</b><br />
+	    The floating point value on the top of the stack is
+	    replaced by its tangent.
+    </td>
+    <td class="c6">
+	    MATH
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    THEN
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>End if</b><br />
+	    Used in an
+	    <tt>IF</tt>&mdash;<tt>ELSE</tt>&mdash;<tt>THEN</tt>
+	    sequence, marks the end of the conditional statement.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    TRACE
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Trace mode</b><br />
+	    If <i>n</i> is nonzero, trace mode is enabled.  If
+	    <i>n</i> is zero, trace mode is turned off.
+    </td>
+    <td class="c6">
+	    TRACE
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    TYPE
+    </td>
+    <td class="c2">
+	    s
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Print string</b><br />
+	    The string at address <i>s</i> is printed on standard output.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    UNTIL
+    </td>
+    <td class="c2">
+	    flag
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>End <tt>BEGIN</tt>&mdash;<tt>UNTIL</tt> loop</b><br />
+	    If <i>flag</i> is zero, the loop continues execution at
+	    the word following the matching <tt>BEGIN</tt>.  If
+	    <i>flag</i> is nonzero, the loop is exited and the word
+	    following the <tt>UNTIL</tt> is executed.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    VARIABLE <i>x</i>
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Declare variable</b><br />
+	    A variable named <i>x</i> is declared and its value is set
+	    to zero.  When <i>x</i> is executed, its address will be
+	    placed on the stack.  Eight bytes are reserved on the heap
+	    for the variable's value.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    WALKBACK
+    </td>
+    <td class="c2">
+	    n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Walkback mode</b><br />
+	    If <i>n</i> is nonzero, a walkback trace through active
+	    words will be performed whenever an error occurs during
+	    execution.  If <i>n</i> is zero, the walkback is
+	    suppressed.
+    </td>
+    <td class="c6">
+	    WALKBACK
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    WHILE
+    </td>
+    <td class="c2">
+	    flag
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Decide <tt>BEGIN</tt>&mdash;<tt>WHILE</tt>&mdash;<tt>REPEAT</tt> loop</b><br />
+	    If <i>flag</i> is nonzero, execution continues after the
+	    <tt>WHILE</tt>. If <i>flag</i> is zero, the loop is exited
+	    and execution resumed after the <tt>REPEAT</tt> that marks
+	    the end of the loop.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    WORDS
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>List words defined</b><br />
+	    Defined words are listed, from the most recently defined
+	    to the first defined.  If the system supports keystroke
+	    trapping, pressing any key will pause the display of
+	    defined words; pressing carriage return will abort the
+	    listing&mdash;any other key resumes it.  On other systems,
+	    only the 20 most recently defined words are listed.
+    </td>
+    <td class="c6">
+	    CONIO
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    WORDSUSED
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>List words used</b><br />
+	    The words used by this program are listed on standard
+	    output.  If the system supports keystroke trapping, the
+	    listing may be aborted by pressing a key while the output
+	    is in progress.  The words used report is useful in
+	    configuring a custom version of <span
+	    class="a">Atlast</span> that includes just the words
+	    needed by the program it executes.
+    </td>
+    <td class="c6">
+	    WORDSUSED
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    WORDSUNUSED
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>List words not used</b><br />
+	    The words not used by this program are listed on standard
+	    output.  If the system supports keystroke trapping, the
+	    listing may be aborted by pressing a key while the output
+	    is in progress.  The words not used report is useful in
+	    configuring a custom version of <span
+	    class="a">Atlast</span> that includes just the words
+	    needed by the program it executes.
+    </td>
+    <td class="c6">
+	    WORDSUSED
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    XOR
+    </td>
+    <td class="c2">
+	    n1 n2
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+	    n3
+    </td>
+    <td class="c5">
+    	    <b>Bitwise exclusive or</b><br />
+	    Stores the bitwise exclusive or of <i>n1</i> and <i>n2</i>
+    	    on the stack.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (XDO)
+    </td>
+    <td class="c2">
+	    limit n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Execute loop</b><br />
+	    At runtime, enters a loop that will step until <i>n</i>
+	    increments and becomes equal to <i>limit</i>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (X?DO)
+    </td>
+    <td class="c2">
+	    limit n
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Execute conditional loop</b><br />
+	    At runtime, tests if <i>n</i> equals <i>limit</i>.  If so,
+	    skips until the matching <tt>LOOP</tt> or <tt>+LOOP</tt>. 
+	    Otherwise, enters the loop.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (XLOOP)
+    </td>
+    <td class="c2">
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Increment loop index</b><br />
+	    At runtime, adds one to the index of the active loop and
+	    exits if equal to the limit.  Otherwise returns to the
+	    matching <tt>DO</tt> or <tt>?DO</tt>.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+<tr>
+    <td class="c1">
+	    (+XLOOP)
+    </td>
+    <td class="c2">
+	    incr
+    </td>
+    <td class="c3">
+	    &rarr;
+    </td>
+    <td class="c4">
+    </td>
+    <td class="c5">
+    	    <b>Add to loop index</b><br />
+	    At runtime, increments the loop index by the top of
+	    stack.  If the loop is not done, begins the next
+	    iteration.
+    </td>
+    <td class="c6">
+    </td>
+</tr>
+</table>
+</div>
+
+<h3><a href="./"><span class="a">Atlast</span> Home</a></h3>
+<h3><a href="/">Fourmilab Home Page</a></h3>
+
+</body>
+</html>
