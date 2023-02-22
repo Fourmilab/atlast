@@ -1762,6 +1762,7 @@ prim P_over()                         /* Push copy of next to top of stack */
 prim P_pick()                         /* Copy indexed item from stack */
 {
     Sl(2);
+    Sl(2 + (unsigned int)S0);
     S0 = stk[-(2 + S0)];
 }
 
@@ -1792,7 +1793,7 @@ prim P_roll()                         /* Rotate N top stack items */
     stackitem i, j, t;
 
     Sl(1);
-    i = S0;
+    i = (unsigned int)S0;
     Pop;
     Sl(i + 1);
     t = stk[-(i + 1)];
